@@ -99,6 +99,21 @@ export const ProfileScreen: React.FC = () => {
           <Text style={styles.menuLabel}>{t('profile.bonuses')}</Text>
           <Text style={styles.chevron}>›</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('MyPlaces')}>
+          <Text style={styles.menuIcon}>📍</Text>
+          <Text style={styles.menuLabel}>{t('profile.myPlaces', { defaultValue: 'Мои места' })}</Text>
+          <Text style={styles.chevron}>›</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Notifications')}>
+          <Text style={styles.menuIcon}>🔔</Text>
+          <Text style={styles.menuLabel}>{t('profile.notifications', { defaultValue: 'Новости и уведомления' })}</Text>
+          <Text style={styles.chevron}>›</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Settings')}>
+          <Text style={styles.menuIcon}>⚙️</Text>
+          <Text style={styles.menuLabel}>{t('profile.settings', { defaultValue: 'Настройки' })}</Text>
+          <Text style={styles.chevron}>›</Text>
+        </TouchableOpacity>
 
         {/* Language toggle */}
         <View style={styles.languageRow}>

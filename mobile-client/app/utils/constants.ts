@@ -14,7 +14,7 @@ export const BONUS_CASHBACK_PERCENT = 1;
 export const BASE_PRICE_PER_KM = 500; // in sum (UZS)
 
 export const COLORS = {
-  primary: '#1a73e8',
+  primary: '#FFC500',
   secondary: '#34a853',
   danger: '#ea4335',
   warning: '#fbbc05',

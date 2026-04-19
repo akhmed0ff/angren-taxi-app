@@ -11,6 +11,9 @@ import { ProfileScreen } from '../screens/main/ProfileScreen';
 import { OrderCreateScreen } from '../screens/main/OrderCreateScreen';
 import { OrderTrackingScreen } from '../screens/main/OrderTrackingScreen';
 import { PaymentScreen } from '../screens/main/PaymentScreen';
+import { MyPlacesScreen } from '../screens/main/MyPlacesScreen';
+import { NotificationsScreen } from '../screens/main/NotificationsScreen';
+import { SettingsScreen } from '../screens/main/SettingsScreen';
 
 import { COLORS } from '../utils/constants';
 import type { MainTabParamList, MainStackParamList } from '../types';
@@ -79,5 +82,8 @@ export const MainNavigator: React.FC = () => (
       options={{ gestureEnabled: false }}
     />
     <Stack.Screen name="Payment" component={PaymentScreen} />
+    <Stack.Screen name="MyPlaces" component={MyPlacesScreen} />
+    <Stack.Screen name="Notifications" component={NotificationsScreen} />
+    <Stack.Screen name="Settings" component={SettingsScreen} />
   </Stack.Navigator>
 );

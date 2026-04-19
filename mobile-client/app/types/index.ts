@@ -177,6 +177,9 @@ export type MainStackParamList = {
   OrderCreate: undefined;
   OrderTracking: { orderId: string };
   Payment: { orderId: string; amount: number };
+  MyPlaces: undefined;
+  Notifications: undefined;
+  Settings: undefined;
 };
 
 export type RootStackParamList = {
