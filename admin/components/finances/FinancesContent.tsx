@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Row, Col, Card, Table, Tag, Select, Space, Statistic, Flex } from 'antd';
+import { Row, Col, Card, Table, Tag, Select, Space, Statistic } from 'antd';
 import { DollarOutlined, WalletOutlined, ArrowUpOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import type { Transaction } from '@/types';
 import type { ColumnsType } from 'antd/es/table';

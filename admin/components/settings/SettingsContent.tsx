@@ -2,13 +2,10 @@
 
 import { useState } from 'react';
 import {
-  Card, Form, Input, InputNumber, Switch, Button, Row, Col, Typography, Divider, message, Tabs,
+  Card, Form, Input, InputNumber, Switch, Button, Row, Col, Divider, message, Tabs,
 } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import type { TariffConfig } from '@/types';
-import { formatCurrency } from '@/utils/formatters';
-
-const { Title, Text } = Typography;
 
 const DEFAULT_TARIFFS = {
   economy: { baseFare: 5000, perKm: 1200, perMinute: 150, minFare: 7000, surgePricing: false, surgeMultiplier: 1.5 },

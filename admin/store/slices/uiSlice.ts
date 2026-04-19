@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import type { UIState } from '@/types';
 
 const initialState: UIState = {
@@ -24,7 +24,6 @@ const uiSlice = createSlice({
       state.notification = null;
     },
   },
-  extraReducers: () => {},
 });
 
 export const { toggleSidebar, setSidebarCollapsed, showNotification, hideNotification } = uiSlice.actions;

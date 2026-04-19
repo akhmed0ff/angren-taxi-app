@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Card, Table, Tag, Typography, Button, Avatar } from 'antd';
-import { EyeOutlined, CarOutlined } from '@ant-design/icons';
+import { Card, Table, Tag, Typography, Button } from 'antd';
+import { CarOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchOrders } from '@/store/slices/ordersSlice';
 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '@/utils/constants';

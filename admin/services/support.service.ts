@@ -24,6 +24,7 @@ const PRIORITIES = ['low', 'medium', 'high', 'urgent'] as const;
 const STATUSES = ['open', 'open', 'in_progress', 'resolved', 'closed'] as const;
 const USER_NAMES = ['Алишер Каримов', 'Камола Рашидова', 'Бобур Исмоилов', 'Нилуфар Юсупова'];
 
+// Mock data generator — Math.random() is intentional here (non-security use: demo data only)
 function generateTickets(): SupportTicket[] {
   return Array.from({ length: 60 }, (_, i) => {
     const status = STATUSES[Math.floor(Math.random() * STATUSES.length)];

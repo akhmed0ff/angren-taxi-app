@@ -17,6 +17,7 @@ const STATUSES = ['completed', 'completed', 'completed', 'cancelled', 'in_progre
 const CATEGORIES = ['economy', 'economy', 'comfort', 'business', 'minivan'] as const;
 const PAYMENTS = ['cash', 'cash', 'card', 'wallet'] as const;
 
+// Mock data generator — Math.random() is intentional here (non-security use: demo data only)
 function generateOrders(): Order[] {
   return Array.from({ length: 200 }, (_, i) => {
     const from = ANGREN_LOCATIONS[Math.floor(Math.random() * ANGREN_LOCATIONS.length)];
