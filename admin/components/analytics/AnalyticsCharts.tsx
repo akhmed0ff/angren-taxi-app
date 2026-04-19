@@ -84,7 +84,7 @@ export default function AnalyticsCharts() {
                 <XAxis dataKey="label" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
                 <YAxis tickFormatter={formatAmount} tick={{ fontSize: 11 }} />
                 <Tooltip formatter={(v: number) => [`${formatAmount(v)} сум`, '']} />
-                <Legend formatter={(v) => ({ revenue: 'Выручка', commission: 'Комиссия' }[v] ?? v)} />
+                <Legend formatter={(v: string) => ({ revenue: 'Выручка', commission: 'Комиссия' } as Record<string, string>)[v] ?? v} />
                 <Line type="monotone" dataKey="revenue" stroke="#1677ff" strokeWidth={2} dot={false} name="revenue" />
                 <Line type="monotone" dataKey="commission" stroke="#722ed1" strokeWidth={2} dot={false} strokeDasharray="4 4" name="commission" />
               </LineChart>
@@ -102,7 +102,7 @@ export default function AnalyticsCharts() {
                 <XAxis dataKey="label" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Legend formatter={(v) => ({ completed: 'Завершено', cancelled: 'Отменено' }[v] ?? v)} />
+                <Legend formatter={(v: string) => ({ completed: 'Завершено', cancelled: 'Отменено' } as Record<string, string>)[v] ?? v} />
                 <Bar dataKey="completed" fill="#52c41a" name="completed" stackId="a" />
                 <Bar dataKey="cancelled" fill="#ff4d4f" name="cancelled" stackId="a" radius={[4, 4, 0, 0]} />
               </BarChart>

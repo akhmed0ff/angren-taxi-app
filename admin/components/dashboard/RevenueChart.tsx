@@ -71,7 +71,7 @@ export default function RevenueChart({ data, loading = false }: RevenueChartProp
               return [value, 'Заказы'];
             }}
           />
-          <Legend formatter={(v) => ({ revenue: 'Выручка', orders: 'Заказы', commission: 'Комиссия' }[v] ?? v)} />
+          <Legend formatter={(v: string) => ({ revenue: 'Выручка', orders: 'Заказы', commission: 'Комиссия' } as Record<string, string>)[v] ?? v} />
           <Area
             yAxisId="revenue"
             type="monotone"

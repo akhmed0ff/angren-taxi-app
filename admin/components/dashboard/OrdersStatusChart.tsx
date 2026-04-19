@@ -39,7 +39,7 @@ export default function OrdersStatusChart({ data, loading = false }: OrdersStatu
           <XAxis dataKey="dateLabel" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
           <YAxis tick={{ fontSize: 11 }} />
           <Tooltip />
-          <Legend formatter={(v) => ({ completed: 'Завершено', cancelled: 'Отменено' }[v] ?? v)} />
+          <Legend formatter={(v: string) => ({ completed: 'Завершено', cancelled: 'Отменено' } as Record<string, string>)[v] ?? v} />
           <Bar dataKey="completed" stackId="a" fill="#52c41a" name="completed" radius={[0, 0, 0, 0]} />
           <Bar dataKey="cancelled" stackId="a" fill="#ff4d4f" name="cancelled" radius={[4, 4, 0, 0]} />
         </BarChart>

@@ -28,7 +28,7 @@ function generateOrders(): Order[] {
     const duration = Math.round(distance * 3 + Math.random() * 10);
     const price = Math.round(distance * 1500 + 5000);
     const createdAt = new Date(Date.now() - Math.random() * 30 * 24 * 3600 * 1000).toISOString();
-    const hasDriver = status !== 'pending' && status !== 'searching';
+    const hasDriver = status !== 'pending';
     return {
       id: String(i + 1),
       userId: String(Math.floor(Math.random() * 120) + 1),

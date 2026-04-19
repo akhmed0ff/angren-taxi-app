@@ -3,5 +3,10 @@ backend/dist/
 backend/data/
 backend/*.db
 backend/.env
+mobile-client/node_modules/
+mobile-driver/node_modules/
+admin/node_modules/
+admin/.next/
+admin/.env.local
 *.log
 .DS_Store
