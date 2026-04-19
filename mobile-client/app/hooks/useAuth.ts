@@ -19,8 +19,8 @@ export function useAuth() {
   );
 
   const login = useCallback(
-    async (email: string, password: string): Promise<void> => {
-      const result = await dispatch(loginThunk({ email, password }));
+    async (phone: string, password: string): Promise<void> => {
+      const result = await dispatch(loginThunk({ phone, password }));
       if (loginThunk.fulfilled.match(result)) {
         socketService.connect(result.payload.token);
       }
