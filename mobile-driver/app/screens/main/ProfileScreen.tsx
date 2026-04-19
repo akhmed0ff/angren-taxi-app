@@ -124,7 +124,7 @@ const ProfileScreen: React.FC = () => {
           </View>
           <Button
             title="Загрузить документы"
-            onPress={() => navigation.navigate('AvailableOrders')}
+            onPress={() => navigation.navigate('Documents' as never)}
             variant="outline"
             fullWidth
             size="sm"

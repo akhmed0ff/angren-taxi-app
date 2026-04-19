@@ -14,7 +14,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.angrентакси.driver",
+      "bundleIdentifier": "com.angrentaxi.driver",
       "infoPlist": {
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Приложению нужен доступ к геолокации для отслеживания вашего местоположения во время поездок.",
         "NSLocationWhenInUseUsageDescription": "Приложению нужен доступ к геолокации для показа вашего местоположения.",
@@ -27,7 +27,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1a1a2e"
       },
-      "package": "com.angrентакси.driver",
+      "package": "com.angrentaxi.driver",
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
