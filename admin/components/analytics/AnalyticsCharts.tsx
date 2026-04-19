@@ -45,7 +45,7 @@ export default function AnalyticsCharts() {
     void dispatch(fetchRevenueData(activePeriod));
     void dispatch(fetchOrdersStats(activePeriod));
     void dispatch(fetchCategoryStats());
-  }, [dispatch, activePeriod]);
+  }, [activePeriod]);
 
   const chartRevenue = revenueData.map((d) => ({
     ...d,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Tag, Button, Space, Input, Select, Avatar, Tooltip, Modal, Form, message, Badge } from 'antd';
 import { SearchOutlined, UserOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons';
 import DataTable from '@/components/common/DataTable';
@@ -30,15 +30,15 @@ export default function DriversTable() {
   });
   const [form] = Form.useForm<{ reason: string }>();
 
-  const loadDrivers = (p = 1, limit = 20) => {
+  const loadDrivers = useCallback((p = 1, limit = 20) => {
     void dispatch(
       fetchDrivers({ page: p, limit, search, status: statusFilter, category: categoryFilter }),
     );
-  };
+  }, [dispatch, search, statusFilter, categoryFilter]);
 
   useEffect(() => {
     loadDrivers();
-  }, [search, statusFilter, categoryFilter]);
+  }, [loadDrivers]);
 
   const handleBlock = async () => {
     try {

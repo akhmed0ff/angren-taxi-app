@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Table, Tag, Select, Space, Input, Card, Button, Modal, Form, message, Drawer, Typography, Divider, Avatar
 } from 'antd';
@@ -30,7 +30,7 @@ export default function SupportContent() {
   const [replyText, setReplyText] = useState('');
   const [replyLoading, setReplyLoading] = useState(false);
 
-  const loadTickets = async (p = 1) => {
+  const loadTickets = useCallback(async (p = 1) => {
     setLoading(true);
     try {
       const res = await supportService.getTickets({
@@ -44,11 +44,11 @@ export default function SupportContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, priorityFilter]);
 
   useEffect(() => {
     void loadTickets(page);
-  }, [page, statusFilter, priorityFilter]);
+  }, [page, loadTickets]);
 
   const handleReply = async () => {
     if (!selectedTicket || !replyText.trim()) return;

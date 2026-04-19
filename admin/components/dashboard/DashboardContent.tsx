@@ -38,7 +38,7 @@ export default function DashboardContent() {
     void dispatch(fetchRevenueData(period === 'today' ? 'week' : period));
     void dispatch(fetchOrdersStats(period === 'today' ? 'week' : period));
     void dispatch(fetchCategoryStats());
-  }, [dispatch, period]);
+  }, [period]);
 
   const periodOptions = [
     { label: 'Неделя', value: 'week' },

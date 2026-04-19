@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Tag, Button, Space, Input, Select, Avatar, Tooltip, Modal, Form, message } from 'antd';
 import { SearchOutlined, UserOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons';
 import DataTable from '@/components/common/DataTable';
@@ -25,13 +25,13 @@ export default function UsersTable() {
   });
   const [form] = Form.useForm<{ reason: string }>();
 
-  const loadUsers = (p = 1, limit = 20) => {
+  const loadUsers = useCallback((p = 1, limit = 20) => {
     void dispatch(fetchUsers({ page: p, limit, search, status: statusFilter }));
-  };
+  }, [dispatch, search, statusFilter]);
 
   useEffect(() => {
     loadUsers();
-  }, [search, statusFilter]);
+  }, [loadUsers]);
 
   const handleBlock = async () => {
     try {

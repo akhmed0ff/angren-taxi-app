@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Tag, Space, Input, Select, Drawer, Descriptions, Rate } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import DataTable from '@/components/common/DataTable';
@@ -33,13 +33,13 @@ export default function OrdersTable() {
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
 
-  const loadOrders = (p = 1, limit = 20) => {
+  const loadOrders = useCallback((p = 1, limit = 20) => {
     void dispatch(fetchOrders({ page: p, limit, search, status: statusFilter, category: categoryFilter }));
-  };
+  }, [dispatch, search, statusFilter, categoryFilter]);
 
   useEffect(() => {
     loadOrders();
-  }, [search, statusFilter, categoryFilter]);
+  }, [loadOrders]);
 
   const columns: ColumnsType<Order> = [
     {

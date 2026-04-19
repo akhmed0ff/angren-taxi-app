@@ -18,7 +18,7 @@ export default function RecentOrders() {
 
   useEffect(() => {
     void dispatch(fetchOrders({ page: 1, limit: 8 }));
-  }, [dispatch]);
+  }, []);
 
   const columns = [
     {
