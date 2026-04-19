@@ -15,7 +15,6 @@ import {
 import { useRouter, usePathname } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
 import { APP_NAME } from '@/utils/constants';
-import clsx from 'clsx';
 
 const { Sider } = Layout;
 const { Text } = Typography;

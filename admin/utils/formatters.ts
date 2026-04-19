@@ -47,6 +47,7 @@ export function formatNumber(n: number): string {
   return new Intl.NumberFormat('ru-RU').format(n);
 }
 
+/** Returns a formatted percentage string. @param n - already a percentage value (e.g. pass 15 for "15%") */
 export function formatPercent(n: number, decimals = 1): string {
   return `${n.toFixed(decimals)}%`;
 }

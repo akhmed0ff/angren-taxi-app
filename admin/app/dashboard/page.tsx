@@ -19,7 +19,7 @@ export default function DashboardPage() {
         router.replace('/login');
       }
     });
-  }, []);
+  }, [dispatch, router]);
 
   if (isLoading) return <LoadingSpinner fullPage />;
 

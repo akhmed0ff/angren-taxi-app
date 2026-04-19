@@ -23,7 +23,7 @@ export default function OrdersPage() {
         router.replace('/login');
       }
     });
-  }, []);
+  }, [dispatch, router]);
 
   if (!isAuthenticated) return <LoadingSpinner fullPage />;
 

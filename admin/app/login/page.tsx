@@ -26,7 +26,7 @@ export default function LoginPage() {
         router.replace('/dashboard');
       }
     });
-  }, []);
+  }, [dispatch, router]);
 
   useEffect(() => {
     if (isAuthenticated) router.replace('/dashboard');
