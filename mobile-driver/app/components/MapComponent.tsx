@@ -13,6 +13,20 @@ interface MapComponentProps {
   style?: object;
 }
 
+/** Проверяет, что координата валидна (не NaN, не Infinity, в допустимых диапазонах) */
+function isValidCoord(c: Coordinates): boolean {
+  return (
+    typeof c.latitude === 'number' &&
+    typeof c.longitude === 'number' &&
+    isFinite(c.latitude) &&
+    isFinite(c.longitude) &&
+    c.latitude >= -90 &&
+    c.latitude <= 90 &&
+    c.longitude >= -180 &&
+    c.longitude <= 180
+  );
+}
+
 const MapComponent: React.FC<MapComponentProps> = ({
   driverLocation,
   pickupLocation,
@@ -37,6 +51,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
         longitudeDelta: 0.05,
       };
 
+  // Фильтруем невалидные координаты перед рендером Polyline
+  const validRouteCoordinates = routeCoordinates.filter(isValidCoord);
+
   return (
     <MapView
       style={[styles.map, style]}
@@ -57,9 +74,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
         <Marker coordinate={destinationLocation} title={t('map.destination')} pinColor={COLORS.danger} />
       ) : null}
 
-      {routeCoordinates.length > 1 ? (
+      {/* Рендерим Polyline только если есть минимум 2 валидные точки */}
+      {validRouteCoordinates.length >= 2 ? (
         <Polyline
-          coordinates={routeCoordinates}
+          coordinates={validRouteCoordinates}
           strokeColor={COLORS.info}
           strokeWidth={4}
         />
