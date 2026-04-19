@@ -16,7 +16,8 @@
     "sendCode": "Отправить код",
     "name": "Имя",
     "passwordsNotMatch": "Пароли не совпадают",
-    "resetEmailSent": "Инструкции отправлены на вашу почту"
+    "resetEmailSent": "Инструкции отправлены на вашу почту",
+    "resetPasswordDescription": "Введите email, и мы отправим инструкции по восстановлению пароля."
   },
   "home": {
     "title": "Ангрен Такси",
@@ -98,6 +99,34 @@
     "dateFilter": "Фильтр по дате",
     "allStatuses": "Все статусы",
     "pullToRefresh": "Потяните для обновления"
+  },
+  "validators": {
+    "passwordMinLength": "Пароль должен содержать не менее 8 символов",
+    "passwordNeedsLetter": "Пароль должен содержать хотя бы одну букву",
+    "passwordNeedsDigit": "Пароль должен содержать хотя бы одну цифру",
+    "fieldRequired": "{{field}} обязательно для заполнения",
+    "invalidEmail": "Введите корректный email",
+    "invalidPhone": "Введите корректный номер телефона Узбекистана"
+  },
+  "driver": {
+    "etaMinutes": "Прибудет через ~{{minutes}} мин"
+  },
+  "bonuses": {
+    "points": "баллов"
+  },
+  "map": {
+    "you": "Вы",
+    "driver": "Водитель",
+    "destination": "Назначение"
+  },
+  "error": {
+    "boundaryTitle": "Что-то пошло не так",
+    "boundaryMessage": "Произошла неожиданная ошибка",
+    "retry": "Повторить"
+  },
+  "order": {
+    "enterAddresses": "Введите адреса отправления и назначения",
+    "calculatePrice": "Рассчитать стоимость"
   },
   "common": {
     "loading": "Загрузка...",

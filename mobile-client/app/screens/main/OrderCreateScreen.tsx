@@ -58,7 +58,7 @@ export const OrderCreateScreen: React.FC = () => {
 
   const handleEstimate = async () => {
     if (!fromAddress || !toAddress) {
-      Alert.alert(t('common.error'), 'Введите адреса отправления и назначения');
+      Alert.alert(t('common.error'), t('order.enterAddresses'));
       return;
     }
     setEstimating(true);
@@ -151,7 +151,7 @@ export const OrderCreateScreen: React.FC = () => {
         />
 
         <Button
-          title={estimate ? t('order.createOrder') : 'Рассчитать стоимость'}
+          title={estimate ? t('order.createOrder') : t('order.calculatePrice')}
           onPress={handleCreateOrder}
           loading={isLoading || estimating}
           style={styles.submitBtn}

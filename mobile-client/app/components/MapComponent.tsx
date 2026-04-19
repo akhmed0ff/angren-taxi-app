@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { useTranslation } from 'react-i18next';
 
 import type { Location } from '../types';
 import { COLORS } from '../utils/constants';
@@ -24,6 +25,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   driverLocation,
   destination,
 }) => {
+  const { t } = useTranslation();
   const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
@@ -62,7 +64,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         {userLocation ? (
           <Marker
             coordinate={userLocation}
-            title="Вы"
+            title={t('map.you')}
             pinColor={COLORS.primary}
           />
         ) : null}
@@ -70,7 +72,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         {driverLocation ? (
           <Marker
             coordinate={driverLocation}
-            title="Водитель"
+            title={t('map.driver')}
             pinColor={COLORS.secondary}
           />
         ) : null}
@@ -78,7 +80,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         {destination ? (
           <Marker
             coordinate={destination}
-            title="Назначение"
+            title={t('map.destination')}
             pinColor={COLORS.danger}
           />
         ) : null}

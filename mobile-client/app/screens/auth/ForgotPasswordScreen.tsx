@@ -34,7 +34,7 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleSubmit = async (): Promise<void> => {
     if (!validateEmail(email)) {
-      setEmailError('Введите корректный email');
+      setEmailError(t('validators.invalidEmail'));
       return;
     }
     setEmailError(null);
@@ -71,7 +71,7 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
         ) : (
           <>
             <Text style={styles.description}>
-              Введите email, и мы отправим инструкции по восстановлению пароля.
+              {t('auth.resetPasswordDescription')}
             </Text>
             <Input
               label={t('auth.email')}

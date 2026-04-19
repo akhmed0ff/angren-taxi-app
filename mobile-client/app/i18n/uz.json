@@ -16,7 +16,8 @@
     "sendCode": "Kod yuborish",
     "name": "Ism",
     "passwordsNotMatch": "Parollar mos kelmadi",
-    "resetEmailSent": "Ko'rsatmalar elektron pochtangizga yuborildi"
+    "resetEmailSent": "Ko'rsatmalar elektron pochtangizga yuborildi",
+    "resetPasswordDescription": "Elektron pochtangizni kiriting va biz parolni tiklash bo'yicha ko'rsatmalar yuboramiz."
   },
   "home": {
     "title": "Angren Taksi",
@@ -98,6 +99,34 @@
     "dateFilter": "Sana bo'yicha filtr",
     "allStatuses": "Barcha statuslar",
     "pullToRefresh": "Yangilash uchun torting"
+  },
+  "validators": {
+    "passwordMinLength": "Parol kamida 8 ta belgidan iborat bo'lishi kerak",
+    "passwordNeedsLetter": "Parol kamida bitta harf o'z ichiga olishi kerak",
+    "passwordNeedsDigit": "Parol kamida bitta raqam o'z ichiga olishi kerak",
+    "fieldRequired": "{{field}} to'ldirilishi shart",
+    "invalidEmail": "To'g'ri elektron pochta manzilini kiriting",
+    "invalidPhone": "O'zbekiston telefon raqamini to'g'ri kiriting"
+  },
+  "driver": {
+    "etaMinutes": "~{{minutes}} daqiqada yetib keladi"
+  },
+  "bonuses": {
+    "points": "ball"
+  },
+  "map": {
+    "you": "Siz",
+    "driver": "Haydovchi",
+    "destination": "Manzil"
+  },
+  "error": {
+    "boundaryTitle": "Nimadir xato ketdi",
+    "boundaryMessage": "Kutilmagan xatolik yuz berdi",
+    "retry": "Qayta urinish"
+  },
+  "order": {
+    "enterAddresses": "Boshlang'ich va oxirgi manzillarni kiriting",
+    "calculatePrice": "Narxni hisoblash"
   },
   "common": {
     "loading": "Yuklanmoqda...",

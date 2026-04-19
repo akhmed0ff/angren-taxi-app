@@ -36,9 +36,9 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
   const validate = (): boolean => {
     const newErrors: typeof errors = {};
-    if (!validateEmail(email)) newErrors.email = 'Введите корректный email';
-    const pwdError = validatePassword(password);
-    if (pwdError) newErrors.password = pwdError;
+    if (!validateEmail(email)) newErrors.email = t('validators.invalidEmail');
+    const pwdKey = validatePassword(password);
+    if (pwdKey) newErrors.password = t(pwdKey);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

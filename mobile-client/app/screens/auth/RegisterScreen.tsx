@@ -15,11 +15,11 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { useAuth } from '../../hooks/useAuth';
+// Remove unused imports
 import {
   validateEmail,
   validatePhone,
   validatePassword,
-  validateRequired,
 } from '../../utils/validators';
 import { COLORS } from '../../utils/constants';
 import type { AuthStackParamList } from '../../types';
@@ -52,12 +52,11 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
-    const nameErr = validateRequired(name, t('auth.name'));
-    if (nameErr) newErrors.name = nameErr;
-    if (!validateEmail(email)) newErrors.email = 'Введите корректный email';
-    if (!validatePhone(phone)) newErrors.phone = 'Введите корректный номер телефона Узбекистана';
-    const pwdErr = validatePassword(password);
-    if (pwdErr) newErrors.password = pwdErr;
+    if (!name.trim()) newErrors.name = t('validators.fieldRequired', { field: t('auth.name') });
+    if (!validateEmail(email)) newErrors.email = t('validators.invalidEmail');
+    if (!validatePhone(phone)) newErrors.phone = t('validators.invalidPhone');
+    const pwdKey = validatePassword(password);
+    if (pwdKey) newErrors.password = t(pwdKey);
     if (password !== confirmPassword) newErrors.confirmPassword = t('auth.passwordsNotMatch');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

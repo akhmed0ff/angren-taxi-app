@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { COLORS } from '../utils/constants';
 import type { PaymentMethod } from '../types';
@@ -9,21 +10,23 @@ interface PaymentMethodSelectorProps {
   onSelect: (method: PaymentMethod) => void;
 }
 
-interface MethodOption {
+type MethodOption = {
   method: PaymentMethod;
-  label: string;
+  labelKey: string;
   icon: string;
-}
+};
 
 const OPTIONS: MethodOption[] = [
-  { method: 'cash', label: 'Наличные', icon: '💵' },
-  { method: 'card', label: 'Банковская карта', icon: '💳' },
+  { method: 'cash', labelKey: 'payment.cash', icon: '💵' },
+  { method: 'card', labelKey: 'payment.card', icon: '💳' },
 ];
 
 export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   selected,
   onSelect,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       {OPTIONS.map((opt) => {
@@ -37,7 +40,7 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
           >
             <Text style={styles.icon}>{opt.icon}</Text>
             <Text style={[styles.label, isSelected && styles.labelSelected]}>
-              {opt.label}
+              {t(opt.labelKey)}
             </Text>
             <View style={[styles.radio, isSelected && styles.radioSelected]}>
               {isSelected ? <View style={styles.radioDot} /> : null}

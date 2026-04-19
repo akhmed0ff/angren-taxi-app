@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { COLORS } from '../utils/constants';
 import type { Driver } from '../types';
@@ -10,6 +11,8 @@ interface DriverCardProps {
 }
 
 export const DriverCard: React.FC<DriverCardProps> = ({ driver, eta }) => {
+  const { t } = useTranslation();
+
   const handleCall = (): void => {
     Linking.openURL(`tel:${driver.phone}`).catch(() => undefined);
   };
@@ -32,7 +35,7 @@ export const DriverCard: React.FC<DriverCardProps> = ({ driver, eta }) => {
         </Text>
         <Text style={styles.plate}>{driver.vehicle.plateNumber}</Text>
         {eta !== undefined ? (
-          <Text style={styles.eta}>Прибудет через ~{eta} мин</Text>
+          <Text style={styles.eta}>{t('driver.etaMinutes', { minutes: eta })}</Text>
         ) : null}
       </View>
 

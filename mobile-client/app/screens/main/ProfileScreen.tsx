@@ -18,7 +18,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setLanguage } from '../../store/slices/ui.slice';
 import { changeLanguage } from '../../i18n/i18n';
-import { COLORS, BONUS_CASHBACK_PERCENT } from '../../utils/constants';
+import { COLORS } from '../../utils/constants';
 import { formatPhone } from '../../utils/formatters';
 import type { MainStackParamList, Language } from '../../types';
 import { updateProfileThunk } from '../../store/slices/auth.slice';
@@ -83,7 +83,7 @@ export const ProfileScreen: React.FC = () => {
             <>
               <InfoRow label={t('profile.email')} value={user?.email ?? '—'} />
               <InfoRow label={t('profile.phone')} value={formatPhone(user?.phone ?? '')} />
-              <InfoRow label="Бонусы" value={`${user?.bonusBalance ?? 0} баллов`} />
+              <InfoRow label={t('profile.bonuses')} value={`${user?.bonusBalance ?? 0} ${t('bonuses.points')}`} />
             </>
           )}
         </View>

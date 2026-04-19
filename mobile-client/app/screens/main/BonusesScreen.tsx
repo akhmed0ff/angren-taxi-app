@@ -46,7 +46,7 @@ export const BonusesScreen: React.FC = () => {
       <View style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>{t('bonuses.balance')}</Text>
         <Text style={styles.balanceValue}>{balance.toLocaleString('ru-RU')}</Text>
-        <Text style={styles.balanceUnit}>баллов</Text>
+        <Text style={styles.balanceUnit}>{t('bonuses.points')}</Text>
         <View style={styles.cashbackBadge}>
           <Text style={styles.cashbackText}>
             {t('bonuses.cashback', { percent: BONUS_CASHBACK_PERCENT })}

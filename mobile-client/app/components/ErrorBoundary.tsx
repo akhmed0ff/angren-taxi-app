@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
+import i18n from '../i18n/i18n';
 import { COLORS } from '../utils/constants';
 import { Button } from './Button';
 
@@ -40,11 +41,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <View style={styles.container}>
-          <Text style={styles.title}>Что-то пошло не так</Text>
+          <Text style={styles.title}>{i18n.t('error.boundaryTitle')}</Text>
           <Text style={styles.message}>
-            {this.state.error?.message ?? 'Произошла неожиданная ошибка'}
+            {this.state.error?.message ?? i18n.t('error.boundaryMessage')}
           </Text>
-          <Button title="Повторить" onPress={this.handleRetry} style={styles.button} />
+          <Button title={i18n.t('error.retry')} onPress={this.handleRetry} style={styles.button} />
         </View>
       );
     }

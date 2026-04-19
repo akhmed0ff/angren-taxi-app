@@ -13,29 +13,29 @@ export function validatePhone(phone: string): boolean {
 
 /**
  * Validates password strength.
- * Returns an error message string if invalid, or null if valid.
+ * Returns a translation key if invalid, or null if valid.
  * Rules: min 8 chars, at least one letter and one digit.
  */
 export function validatePassword(password: string): string | null {
   if (password.length < 8) {
-    return 'Пароль должен содержать не менее 8 символов';
+    return 'validators.passwordMinLength';
   }
   if (!/[a-zA-Z]/.test(password)) {
-    return 'Пароль должен содержать хотя бы одну букву';
+    return 'validators.passwordNeedsLetter';
   }
   if (!/[0-9]/.test(password)) {
-    return 'Пароль должен содержать хотя бы одну цифру';
+    return 'validators.passwordNeedsDigit';
   }
   return null;
 }
 
 /**
  * Validates that a required field is not blank.
- * Returns an error message string if invalid, or null if valid.
+ * Returns a translation key template if invalid, or null if valid.
  */
 export function validateRequired(value: string, fieldName: string): string | null {
   if (!value || value.trim().length === 0) {
-    return `${fieldName} обязательно для заполнения`;
+    return `${fieldName} обязательно`;
   }
   return null;
 }
