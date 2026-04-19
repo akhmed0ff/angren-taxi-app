@@ -47,7 +47,9 @@
       "completed": "Yakunlandi",
       "cancelled": "Bekor qilindi"
     },
-    "addressPlaceholder": "Manzilni kiriting"
+    "addressPlaceholder": "Manzilni kiriting",
+    "enterAddresses": "Boshlang'ich va oxirgi manzillarni kiriting",
+    "calculatePrice": "Narxni hisoblash"
   },
   "tracking": {
     "driverInfo": "Haydovchi haqida ma'lumot",
@@ -90,7 +92,8 @@
     "history": "Bonuslar tarixi",
     "earned": "Hisoblandi",
     "spent": "Sarflandi",
-    "noHistory": "Bonuslar tarixi bo'sh"
+    "noHistory": "Bonuslar tarixi bo'sh",
+    "points": "ball"
   },
   "history": {
     "title": "Buyurtmalar tarixi",
@@ -112,9 +115,6 @@
   "driver": {
     "etaMinutes": "~{{minutes}} daqiqada yetib keladi"
   },
-  "bonuses": {
-    "points": "ball"
-  },
   "map": {
     "you": "Siz",
     "driver": "Haydovchi",
@@ -124,10 +124,6 @@
     "boundaryTitle": "Nimadir xato ketdi",
     "boundaryMessage": "Kutilmagan xatolik yuz berdi",
     "retry": "Qayta urinish"
-  },
-  "order": {
-    "enterAddresses": "Boshlang'ich va oxirgi manzillarni kiriting",
-    "calculatePrice": "Narxni hisoblash"
   },
   "common": {
     "loading": "Yuklanmoqda...",

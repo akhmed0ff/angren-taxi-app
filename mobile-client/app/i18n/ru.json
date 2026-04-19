@@ -47,7 +47,9 @@
       "completed": "Завершён",
       "cancelled": "Отменён"
     },
-    "addressPlaceholder": "Введите адрес"
+    "addressPlaceholder": "Введите адрес",
+    "enterAddresses": "Введите адреса отправления и назначения",
+    "calculatePrice": "Рассчитать стоимость"
   },
   "tracking": {
     "driverInfo": "Информация о водителе",
@@ -90,7 +92,8 @@
     "history": "История бонусов",
     "earned": "Начислено",
     "spent": "Списано",
-    "noHistory": "История бонусов пуста"
+    "noHistory": "История бонусов пуста",
+    "points": "баллов"
   },
   "history": {
     "title": "История заказов",
@@ -112,9 +115,6 @@
   "driver": {
     "etaMinutes": "Прибудет через ~{{minutes}} мин"
   },
-  "bonuses": {
-    "points": "баллов"
-  },
   "map": {
     "you": "Вы",
     "driver": "Водитель",
@@ -124,10 +124,6 @@
     "boundaryTitle": "Что-то пошло не так",
     "boundaryMessage": "Произошла неожиданная ошибка",
     "retry": "Повторить"
-  },
-  "order": {
-    "enterAddresses": "Введите адреса отправления и назначения",
-    "calculatePrice": "Рассчитать стоимость"
   },
   "common": {
     "loading": "Загрузка...",
