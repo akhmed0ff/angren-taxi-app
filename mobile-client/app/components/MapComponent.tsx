@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
@@ -52,6 +52,11 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   const lastUpdateTimeRef = useRef<number>(0);
   const fitDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  /**
+   * Ближайшие MAX_DRIVER_MARKERS водителей.
+   * Если есть userLocation — сортируем по расстоянию,
+   * иначе просто обрезаем до лимита.
+   */
   const visibleDriverLocations = useMemo<Location[]>(() => {
     if (!driversLocations || driversLocations.length === 0) return [];
     const sorted = userLocation
@@ -62,6 +67,39 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     return sorted.slice(0, MAX_DRIVER_MARKERS);
   }, [driversLocations, userLocation]);
 
+  /**
+   * Слой абстракции для рендера маркеров водителей.
+   * В будущем здесь можно подключить кластеризацию
+   * (например, react-native-maps-super-cluster или @teovilla/react-native-maps-utils)
+   * без изменений в остальном коде компонента.
+   */
+  const renderDrivers = useCallback((): React.ReactNode => {
+    // --- Режим assigned: один конкретный водитель ---
+    if (mode === 'assigned' && driverLocation) {
+      return (
+        <Marker
+          coordinate={driverLocation}
+          title={t('map.driver')}
+          pinColor={COLORS.secondary}
+          tracksViewChanges={false}
+        />
+      );
+    }
+
+    // --- Режим search: все ближайшие водители ---
+    // TODO: заменить на clustering при росте нагрузки
+    return visibleDriverLocations.map((loc, index) => (
+      <Marker
+        key={`driver-${index}-${loc.latitude}-${loc.longitude}`}
+        coordinate={loc}
+        title={t('map.driver')}
+        pinColor={COLORS.secondary}
+        tracksViewChanges={false}
+      />
+    ));
+  }, [mode, driverLocation, visibleDriverLocations, t]);
+
+  // Режим поиска: fitToCoordinates / animateToRegion с debounce 500мс
   useEffect(() => {
     if (mode !== 'search') return;
 
@@ -94,6 +132,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     };
   }, [mode, userLocation, driverLocation, destination]);
 
+  // Режим активного заказа: следим за водителем с throttle 2 сек
   useEffect(() => {
     if (mode !== 'assigned' || !driverLocation || !mapRef.current) return;
     const now = Date.now();
@@ -128,24 +167,8 @@ export const MapComponent: React.FC<MapComponentProps> = ({
           />
         ) : null}
 
-        {visibleDriverLocations.map((loc, index) => (
-          <Marker
-            key={`driver-${index}-${loc.latitude}-${loc.longitude}`}
-            coordinate={loc}
-            title={t('map.driver')}
-            pinColor={COLORS.secondary}
-            tracksViewChanges={false}
-          />
-        ))}
-
-        {driverLocation ? (
-          <Marker
-            coordinate={driverLocation}
-            title={t('map.driver')}
-            pinColor={COLORS.secondary}
-            tracksViewChanges={false}
-          />
-        ) : null}
+        {/* Абстракция рендера водителей — заменяется на clustering без правок ниже */}
+        {renderDrivers()}
 
         {destination ? (
           <Marker
