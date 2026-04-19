@@ -11,6 +11,7 @@ interface MapComponentProps {
   driverLocation?: Location;
   destination?: Location;
   route?: Location[];
+  mode?: 'search' | 'assigned';
 }
 
 const ANGREN_REGION = {
@@ -24,11 +25,16 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   userLocation,
   driverLocation,
   destination,
+  mode = 'search',
 }) => {
   const { t } = useTranslation();
   const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
+    // Анимируем карту только в режиме поиска,
+    // чтобы не конфликтовать с fitToCoordinates в режиме assigned
+    if (mode !== 'search') return;
+
     const coords: { latitude: number; longitude: number }[] = [];
     if (userLocation) coords.push(userLocation);
     if (driverLocation) coords.push(driverLocation);
@@ -39,8 +45,18 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         edgePadding: { top: 60, right: 60, bottom: 60, left: 60 },
         animated: true,
       });
+    } else if (coords.length === 1 && mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: coords[0].latitude,
+          longitude: coords[0].longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        400,
+      );
     }
-  }, [userLocation, driverLocation, destination]);
+  }, [mode, userLocation, driverLocation, destination]);
 
   return (
     <View style={styles.container}>
