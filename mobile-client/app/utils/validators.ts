@@ -31,11 +31,12 @@ export function validatePassword(password: string): string | null {
 
 /**
  * Validates that a required field is not blank.
- * Returns a translation key template if invalid, or null if valid.
+ * Returns the i18n key 'validators.fieldRequired' if invalid, or null if valid.
+ * Callers should call t(result, { field: fieldName }) to get the translated message.
  */
-export function validateRequired(value: string, fieldName: string): string | null {
+export function validateRequired(value: string): string | null {
   if (!value || value.trim().length === 0) {
-    return `${fieldName} обязательно`;
+    return 'validators.fieldRequired';
   }
   return null;
 }

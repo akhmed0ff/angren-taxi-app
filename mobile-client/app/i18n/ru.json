@@ -15,6 +15,7 @@
     "resetPassword": "Сбросить пароль",
     "sendCode": "Отправить код",
     "name": "Имя",
+    "namePlaceholder": "Иван Иванов",
     "passwordsNotMatch": "Пароли не совпадают",
     "resetEmailSent": "Инструкции отправлены на вашу почту",
     "resetPasswordDescription": "Введите email, и мы отправим инструкции по восстановлению пароля."

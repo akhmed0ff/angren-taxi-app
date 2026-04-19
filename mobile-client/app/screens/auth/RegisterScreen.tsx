@@ -20,6 +20,7 @@ import {
   validateEmail,
   validatePhone,
   validatePassword,
+  validateRequired,
 } from '../../utils/validators';
 import { COLORS } from '../../utils/constants';
 import type { AuthStackParamList } from '../../types';
@@ -52,7 +53,8 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
-    if (!name.trim()) newErrors.name = t('validators.fieldRequired', { field: t('auth.name') });
+    const nameKey = validateRequired(name);
+    if (nameKey) newErrors.name = t(nameKey, { field: t('auth.name') });
     if (!validateEmail(email)) newErrors.email = t('validators.invalidEmail');
     if (!validatePhone(phone)) newErrors.phone = t('validators.invalidPhone');
     const pwdKey = validatePassword(password);
@@ -83,7 +85,7 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           label={t('auth.name')}
           value={name}
           onChangeText={setName}
-          placeholder="Иван Иванов"
+          placeholder={t('auth.namePlaceholder')}
           error={errors.name}
         />
         <Input

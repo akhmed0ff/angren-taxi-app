@@ -15,7 +15,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { useAuth } from '../../hooks/useAuth';
-import { validateEmail, validatePassword, validateRequired } from '../../utils/validators';
+import { validateEmail, validatePassword } from '../../utils/validators';
 import { COLORS } from '../../utils/constants';
 import type { AuthStackParamList } from '../../types';
 

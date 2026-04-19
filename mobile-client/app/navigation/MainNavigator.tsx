@@ -2,6 +2,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { useTranslation } from 'react-i18next';
 
 import { HomeScreen } from '../screens/main/HomeScreen';
 import { OrderHistoryScreen } from '../screens/main/OrderHistoryScreen';
@@ -25,14 +26,16 @@ const TAB_ICONS: Record<keyof MainTabParamList, string> = {
   Profile: '👤',
 };
 
-const TAB_LABELS: Record<keyof MainTabParamList, string> = {
-  Home: 'Главная',
-  OrderHistory: 'Заказы',
-  Bonuses: 'Бонусы',
-  Profile: 'Профиль',
+const TAB_LABEL_KEYS: Record<keyof MainTabParamList, string> = {
+  Home: 'navigation.home',
+  OrderHistory: 'navigation.orders',
+  Bonuses: 'navigation.bonuses',
+  Profile: 'navigation.profile',
 };
 
 function TabNavigator(): React.JSX.Element {
+  const { t } = useTranslation();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -42,7 +45,7 @@ function TabNavigator(): React.JSX.Element {
             {TAB_ICONS[route.name]}
           </Text>
         ),
-        tabBarLabel: TAB_LABELS[route.name],
+        tabBarLabel: t(TAB_LABEL_KEYS[route.name]),
         tabBarActiveTintColor: COLORS.primary,
         tabBarInactiveTintColor: COLORS.textSecondary,
         tabBarStyle: {

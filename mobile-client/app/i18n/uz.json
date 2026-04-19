@@ -15,6 +15,7 @@
     "resetPassword": "Parolni tiklash",
     "sendCode": "Kod yuborish",
     "name": "Ism",
+    "namePlaceholder": "Ism Familiya",
     "passwordsNotMatch": "Parollar mos kelmadi",
     "resetEmailSent": "Ko'rsatmalar elektron pochtangizga yuborildi",
     "resetPasswordDescription": "Elektron pochtangizni kiriting va biz parolni tiklash bo'yicha ko'rsatmalar yuboramiz."
