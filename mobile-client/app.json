@@ -4,26 +4,13 @@
     "slug": "angren-taxi",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#1a73e8"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "uz.angren.taxi"
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#1a73e8"
-      },
       "package": "uz.angren.taxi"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-location",

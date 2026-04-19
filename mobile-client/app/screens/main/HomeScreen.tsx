@@ -67,8 +67,12 @@ export const HomeScreen: React.FC = () => {
       {/* Map */}
       <View style={styles.mapContainer}>
         <MapComponent
+          mode="search"
           userLocation={userLocation}
-          driverLocation={availableDrivers[0]?.location}
+          driversLocations={availableDrivers.map((driver) => ({
+            ...driver.location,
+            id: driver.id,
+          }))}
         />
         {driversLoading && <LoadingSpinner fullscreen />}
       </View>

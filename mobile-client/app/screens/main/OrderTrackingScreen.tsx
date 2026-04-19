@@ -99,6 +99,7 @@ export const OrderTrackingScreen: React.FC<Props> = ({ navigation, route }) => {
     <View style={styles.container}>
       <View style={styles.mapContainer}>
         <MapComponent
+          mode="assigned"
           driverLocation={driverLocation ?? currentOrder.driver?.location}
           destination={currentOrder.to}
         />

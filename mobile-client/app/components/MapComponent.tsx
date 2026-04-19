@@ -1,18 +1,18 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
 
 import type { Location } from '../types';
 import { COLORS } from '../utils/constants';
 
 interface MapComponentProps {
+  mode?: 'search' | 'assigned';
   userLocation?: Location;
   driverLocation?: Location;
   driversLocations?: Location[];
   destination?: Location;
   route?: Location[];
-  mode?: 'search' | 'assigned';
 }
 
 const ANGREN_REGION = {
@@ -24,9 +24,14 @@ const ANGREN_REGION = {
 
 const DRIVER_TRACK_THROTTLE_MS = 2000;
 const MAX_DRIVER_MARKERS = 30;
-const FIT_DEBOUNCE_MS = 500;
 
-/** Расстояние между двумя точками в метрах (формула Haversine) */
+const hasValidCoordinates = (location?: Partial<Location>): location is Location => (
+  typeof location?.latitude === 'number'
+  && Number.isFinite(location.latitude)
+  && typeof location?.longitude === 'number'
+  && Number.isFinite(location.longitude)
+);
+
 function getDistance(a: Location, b: Location): number {
   const R = 6371000;
   const toRad = (deg: number) => (deg * Math.PI) / 180;
@@ -40,106 +45,40 @@ function getDistance(a: Location, b: Location): number {
   return R * 2 * Math.atan2(Math.sqrt(c), Math.sqrt(1 - c));
 }
 
-export const MapComponent: React.FC<MapComponentProps> = ({
+const MapComponentBase: React.FC<MapComponentProps> = ({
+  mode = 'search',
   userLocation,
   driverLocation,
   driversLocations,
   destination,
-  mode = 'search',
+  route,
 }) => {
   const { t } = useTranslation();
   const mapRef = useRef<MapView>(null);
   const lastUpdateTimeRef = useRef<number>(0);
-  const fitDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /**
-   * Ближайшие MAX_DRIVER_MARKERS водителей.
-   * Если есть userLocation — сортируем по расстоянию,
-   * иначе просто обрезаем до лимита.
-   */
   const visibleDriverLocations = useMemo<Location[]>(() => {
     if (!driversLocations || driversLocations.length === 0) return [];
+    const validDrivers = driversLocations.filter(hasValidCoordinates);
     const sorted = userLocation
-      ? [...driversLocations].sort(
-          (a, b) => getDistance(userLocation, a) - getDistance(userLocation, b),
-        )
-      : driversLocations;
+      ? [...validDrivers].sort((a, b) => getDistance(userLocation, a) - getDistance(userLocation, b))
+      : validDrivers;
     return sorted.slice(0, MAX_DRIVER_MARKERS);
   }, [driversLocations, userLocation]);
 
-  /**
-   * Слой абстракции для рендера маркеров водителей.
-   * В будущем здесь можно подключить кластеризацию
-   * (например, react-native-maps-super-cluster или @teovilla/react-native-maps-utils)
-   * без изменений в остальном коде компонента.
-   */
-  const renderDrivers = useCallback((): React.ReactNode => {
-    // --- Режим assigned: один конкретный водитель ---
-    if (mode === 'assigned' && driverLocation) {
-      return (
-        <Marker
-          coordinate={driverLocation}
-          title={t('map.driver')}
-          pinColor={COLORS.secondary}
-          tracksViewChanges={false}
-        />
-      );
-    }
-
-    // --- Режим search: все ближайшие водители ---
-    // TODO: заменить на clustering при росте нагрузки
-    return visibleDriverLocations.map((loc, index) => (
-      <Marker
-        key={`driver-${index}-${loc.latitude}-${loc.longitude}`}
-        coordinate={loc}
-        title={t('map.driver')}
-        pinColor={COLORS.secondary}
-        tracksViewChanges={false}
-      />
-    ));
-  }, [mode, driverLocation, visibleDriverLocations, t]);
-
-  // Режим поиска: fitToCoordinates / animateToRegion с debounce 500мс
-  useEffect(() => {
-    if (mode !== 'search') return;
-
-    const coords: Location[] = [];
-    if (userLocation) coords.push(userLocation);
-    if (driverLocation) coords.push(driverLocation);
-    if (destination) coords.push(destination);
-
-    if (fitDebounceRef.current) {
-      clearTimeout(fitDebounceRef.current);
-    }
-
-    fitDebounceRef.current = setTimeout(() => {
-      if (!mapRef.current) return;
-      if (coords.length >= 2) {
-        mapRef.current.fitToCoordinates(coords, {
-          edgePadding: { top: 60, right: 60, bottom: 60, left: 60 },
-          animated: true,
-        });
-      } else if (coords.length === 1) {
-        mapRef.current.animateToRegion(
-          { latitude: coords[0].latitude, longitude: coords[0].longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 },
-          400,
-        );
-      }
-    }, FIT_DEBOUNCE_MS);
-
-    return () => {
-      if (fitDebounceRef.current) clearTimeout(fitDebounceRef.current);
-    };
-  }, [mode, userLocation, driverLocation, destination]);
-
-  // Режим активного заказа: следим за водителем с throttle 2 сек
   useEffect(() => {
     if (mode !== 'assigned' || !driverLocation || !mapRef.current) return;
     const now = Date.now();
     if (now - lastUpdateTimeRef.current < DRIVER_TRACK_THROTTLE_MS) return;
     lastUpdateTimeRef.current = now;
+
     mapRef.current.animateToRegion(
-      { latitude: driverLocation.latitude, longitude: driverLocation.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 },
+      {
+        latitude: driverLocation.latitude,
+        longitude: driverLocation.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      },
       500,
     );
   }, [mode, driverLocation]);
@@ -152,10 +91,15 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         provider={PROVIDER_GOOGLE}
         initialRegion={
           userLocation
-            ? { latitude: userLocation.latitude, longitude: userLocation.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 }
+            ? {
+                latitude: userLocation.latitude,
+                longitude: userLocation.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }
             : ANGREN_REGION
         }
-        showsUserLocation={false}
+        showsUserLocation
         showsMyLocationButton={false}
       >
         {userLocation ? (
@@ -167,10 +111,28 @@ export const MapComponent: React.FC<MapComponentProps> = ({
           />
         ) : null}
 
-        {/* Абстракция рендера водителей — заменяется на clustering без правок ниже */}
-        {renderDrivers()}
+        {mode === 'assigned' && driverLocation ? (
+          <Marker
+            coordinate={driverLocation}
+            title={t('map.driver')}
+            pinColor={COLORS.secondary}
+            tracksViewChanges={false}
+          />
+        ) : null}
 
-        {destination ? (
+        {mode === 'search'
+          ? visibleDriverLocations.map((loc, index) => (
+              <Marker
+                key={`driver-${index}-${loc.latitude}-${loc.longitude}`}
+                coordinate={loc}
+                title={t('map.driver')}
+                pinColor={COLORS.secondary}
+                tracksViewChanges={false}
+              />
+            ))
+          : null}
+
+        {destination && hasValidCoordinates(destination) ? (
           <Marker
             coordinate={destination}
             title={t('map.destination')}
@@ -178,10 +140,23 @@ export const MapComponent: React.FC<MapComponentProps> = ({
             tracksViewChanges={false}
           />
         ) : null}
+
+        {(() => {
+          const validRoute = route?.filter(hasValidCoordinates);
+          return validRoute && validRoute.length >= 2 ? (
+            <Polyline
+              coordinates={validRoute}
+              strokeColor={COLORS.primary}
+              strokeWidth={4}
+            />
+          ) : null;
+        })()}
       </MapView>
     </View>
   );
 };
+
+export const MapComponent = React.memo(MapComponentBase);
 
 const styles = StyleSheet.create({
   container: { flex: 1, overflow: 'hidden', borderRadius: 12 },
