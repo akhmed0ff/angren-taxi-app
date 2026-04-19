@@ -1,0 +1,53 @@
+{
+  "auth": {
+    "register_success": "Ro'yxatdan o'tish muvaffaqiyatli amalga oshirildi",
+    "login_success": "Tizimga kirish muvaffaqiyatli amalga oshirildi",
+    "logout_success": "Tizimdan chiqish muvaffaqiyatli amalga oshirildi",
+    "invalid_credentials": "Telefon raqami yoki parol noto'g'ri",
+    "user_exists": "Bu telefon raqami bilan foydalanuvchi allaqachon mavjud",
+    "user_not_found": "Foydalanuvchi topilmadi",
+    "unauthorized": "Avtorizatsiya talab qilinadi",
+    "token_expired": "Token muddati tugagan",
+    "token_invalid": "Noto'g'ri token"
+  },
+  "order": {
+    "created": "Buyurtma muvaffaqiyatli yaratildi",
+    "not_found": "Buyurtma topilmadi",
+    "accepted": "Buyurtma qabul qilindi",
+    "completed": "Buyurtma bajarildi",
+    "cancelled": "Buyurtma bekor qilindi",
+    "no_drivers": "Mavjud haydovchilar yo'q",
+    "already_active": "Sizda allaqachon faol buyurtma mavjud",
+    "status_updated": "Buyurtma holati yangilandi"
+  },
+  "driver": {
+    "online": "Haydovchi onlayn",
+    "offline": "Haydovchi oflayn",
+    "not_found": "Haydovchi topilmadi",
+    "profile_updated": "Profil yangilandi",
+    "insufficient_balance": "Oldindan to'lov balansi yetarli emas",
+    "no_orders": "Mavjud buyurtmalar yo'q"
+  },
+  "payment": {
+    "success": "To'lov muvaffaqiyatli amalga oshirildi",
+    "failed": "To'lov amalga oshmadi",
+    "not_found": "To'lov topilmadi",
+    "already_processed": "To'lov allaqachon qayta ishlangan"
+  },
+  "bonus": {
+    "credited": "Bonuslar hisoblandi",
+    "balance": "Bonus balansi"
+  },
+  "validation": {
+    "required": "Maydon to'ldirilishi shart",
+    "invalid_phone": "Telefon raqamining formati noto'g'ri",
+    "invalid_type": "Foydalanuvchi turi noto'g'ri",
+    "invalid_category": "Avtomobil toifasi noto'g'ri",
+    "invalid_payment": "To'lov usuli noto'g'ri"
+  },
+  "errors": {
+    "internal": "Ichki server xatosi",
+    "not_found": "Resurs topilmadi",
+    "forbidden": "Kirish taqiqlangan"
+  }
+}
