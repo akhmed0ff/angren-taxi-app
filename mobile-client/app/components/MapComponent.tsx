@@ -21,6 +21,8 @@ const ANGREN_REGION = {
   longitudeDelta: 0.05,
 };
 
+const DRIVER_TRACK_THROTTLE_MS = 2000;
+
 export const MapComponent: React.FC<MapComponentProps> = ({
   userLocation,
   driverLocation,
@@ -29,10 +31,10 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 }) => {
   const { t } = useTranslation();
   const mapRef = useRef<MapView>(null);
+  const lastUpdateTimeRef = useRef<number>(0);
 
+  // Режим поиска: fitToCoordinates / animateToRegion для всех точек
   useEffect(() => {
-    // Анимируем карту только в режиме поиска,
-    // чтобы не конфликтовать с fitToCoordinates в режиме assigned
     if (mode !== 'search') return;
 
     const coords: { latitude: number; longitude: number }[] = [];
@@ -57,6 +59,26 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       );
     }
   }, [mode, userLocation, driverLocation, destination]);
+
+  // Режим активного заказа: следим за водителем с throttle 2 сек
+  useEffect(() => {
+    if (mode !== 'assigned' || !driverLocation || !mapRef.current) return;
+
+    const now = Date.now();
+    if (now - lastUpdateTimeRef.current < DRIVER_TRACK_THROTTLE_MS) return;
+
+    lastUpdateTimeRef.current = now;
+
+    mapRef.current.animateToRegion(
+      {
+        latitude: driverLocation.latitude,
+        longitude: driverLocation.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      },
+      500,
+    );
+  }, [mode, driverLocation]);
 
   return (
     <View style={styles.container}>
