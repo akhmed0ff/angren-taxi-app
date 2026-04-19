@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import { COLORS } from '../utils/constants';
 interface MapComponentProps {
   userLocation?: Location;
   driverLocation?: Location;
+  driversLocations?: Location[];
   destination?: Location;
   route?: Location[];
   mode?: 'search' | 'assigned';
@@ -22,10 +23,26 @@ const ANGREN_REGION = {
 };
 
 const DRIVER_TRACK_THROTTLE_MS = 2000;
+const MAX_DRIVER_MARKERS = 30;
+
+/** Расстояние между двумя точками в метрах (формула Haversine) */
+function getDistance(a: Location, b: Location): number {
+  const R = 6371000;
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(b.latitude - a.latitude);
+  const dLon = toRad(b.longitude - a.longitude);
+  const sinDLat = Math.sin(dLat / 2);
+  const sinDLon = Math.sin(dLon / 2);
+  const c =
+    sinDLat * sinDLat +
+    Math.cos(toRad(a.latitude)) * Math.cos(toRad(b.latitude)) * sinDLon * sinDLon;
+  return R * 2 * Math.atan2(Math.sqrt(c), Math.sqrt(1 - c));
+}
 
 export const MapComponent: React.FC<MapComponentProps> = ({
   userLocation,
   driverLocation,
+  driversLocations,
   destination,
   mode = 'search',
 }) => {
@@ -33,11 +50,28 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   const mapRef = useRef<MapView>(null);
   const lastUpdateTimeRef = useRef<number>(0);
 
+  /**
+   * Ближайшие MAX_DRIVER_MARKERS водителей.
+   * Если есть userLocation — сортируем по расстоянию,
+   * иначе просто обрезаем до лимита.
+   */
+  const visibleDriverLocations = useMemo<Location[]>(() => {
+    if (!driversLocations || driversLocations.length === 0) return [];
+
+    const sorted = userLocation
+      ? [...driversLocations].sort(
+          (a, b) => getDistance(userLocation, a) - getDistance(userLocation, b),
+        )
+      : driversLocations;
+
+    return sorted.slice(0, MAX_DRIVER_MARKERS);
+  }, [driversLocations, userLocation]);
+
   // Режим поиска: fitToCoordinates / animateToRegion для всех точек
   useEffect(() => {
     if (mode !== 'search') return;
 
-    const coords: { latitude: number; longitude: number }[] = [];
+    const coords: Location[] = [];
     if (userLocation) coords.push(userLocation);
     if (driverLocation) coords.push(driverLocation);
     if (destination) coords.push(destination);
@@ -107,6 +141,17 @@ export const MapComponent: React.FC<MapComponentProps> = ({
           />
         ) : null}
 
+        {/* Маркеры ближайших водителей (режим поиска) */}
+        {visibleDriverLocations.map((loc, index) => (
+          <Marker
+            key={`driver-${index}-${loc.latitude}-${loc.longitude}`}
+            coordinate={loc}
+            title={t('map.driver')}
+            pinColor={COLORS.secondary}
+          />
+        ))}
+
+        {/* Маркер конкретного водителя (режим assigned) */}
         {driverLocation ? (
           <Marker
             coordinate={driverLocation}
