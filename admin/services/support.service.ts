@@ -32,7 +32,7 @@ function generateTickets(): SupportTicket[] {
     return {
       id: String(i + 1),
       userId: String(i + 1),
-      userName: USER_NAMES[Math.floor(Math.random() * USER_NAMES.length)],
+      userName: USER_NAMES[i % USER_NAMES.length],
       userPhone: `+99890${1000000 + i}`,
       userType: Math.random() > 0.3 ? 'passenger' : 'driver',
       subject: SUBJECTS[Math.floor(Math.random() * SUBJECTS.length)],

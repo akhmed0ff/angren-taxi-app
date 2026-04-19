@@ -7,6 +7,7 @@ import type {
 } from '@/types';
 import { subDays, format } from 'date-fns';
 
+// Mock data generators — Math.random() is intentional here (non-security use: demo data only)
 function generateRevenue(days: number): RevenueDataPoint[] {
   return Array.from({ length: days }, (_, i) => {
     const date = subDays(new Date(), days - 1 - i);

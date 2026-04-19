@@ -11,6 +11,7 @@ const DESCRIPTIONS = [
   'Штраф за нарушение',
 ];
 
+// Mock data generator — Math.random() is intentional here (non-security use: demo data only)
 function generateTransactions(): Transaction[] {
   return Array.from({ length: 150 }, (_, i) => {
     const type = TYPES[Math.floor(Math.random() * TYPES.length)];

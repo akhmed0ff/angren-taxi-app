@@ -20,7 +20,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001)
+Open [http://localhost:3000](http://localhost:3000)
 
 **Demo credentials:**
 - Email: `admin@angren-taxi.uz`

@@ -8,5 +8,6 @@ mobile-driver/node_modules/
 admin/node_modules/
 admin/.next/
 admin/.env.local
+admin/tsconfig.tsbuildinfo
 *.log
 .DS_Store

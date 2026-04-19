@@ -31,11 +31,11 @@ function generateOrders(): Order[] {
     const hasDriver = status !== 'pending';
     return {
       id: String(i + 1),
-      userId: String(Math.floor(Math.random() * 120) + 1),
-      userName: USER_NAMES[Math.floor(Math.random() * USER_NAMES.length)],
+      userId: String((i % 120) + 1),
+      userName: USER_NAMES[i % USER_NAMES.length],
       userPhone: `+99890${1000000 + i}`,
-      driverId: hasDriver ? String(Math.floor(Math.random() * 80) + 1) : undefined,
-      driverName: hasDriver ? DRIVER_NAMES[Math.floor(Math.random() * DRIVER_NAMES.length)] : undefined,
+      driverId: hasDriver ? String((i % 80) + 1) : undefined,
+      driverName: hasDriver ? DRIVER_NAMES[i % DRIVER_NAMES.length] : undefined,
       driverPhone: hasDriver ? `+99891${1000000 + i}` : undefined,
       status,
       from,

@@ -11,11 +11,14 @@ const NAMES = [
 ];
 
 function randomPhone(): string {
+  // Math.random() is intentional here (non-security use: demo data only)
   const codes = ['90', '91', '93', '94', '95', '97', '98', '99'];
   const code = codes[Math.floor(Math.random() * codes.length)];
   const num = Math.floor(Math.random() * 9_000_000) + 1_000_000;
   return `+998${code}${num}`;
 }
+
+// Mock data generator — Math.random() is intentional here (non-security use: demo data only)
 
 function generateUsers(): User[] {
   return Array.from({ length: 120 }, (_, i) => ({
