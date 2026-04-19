@@ -1,0 +1,148 @@
+{
+  "auth": {
+    "login": "Kirish",
+    "register": "Ro'yxatdan o'tish",
+    "forgotPassword": "Parolni unutdingizmi?",
+    "email": "Elektron pochta",
+    "phone": "Telefon",
+    "password": "Parol",
+    "confirmPassword": "Parolni tasdiqlang",
+    "loginButton": "Kirish",
+    "registerButton": "Ro'yxatdan o'tish",
+    "noAccount": "Hisobingiz yo'qmi?",
+    "haveAccount": "Allaqachon hisobingiz bormi?",
+    "forgotPasswordLink": "Parolni unutdingizmi?",
+    "resetPassword": "Parolni tiklash",
+    "sendCode": "Kod yuborish",
+    "name": "Ism",
+    "namePlaceholder": "Ism Familiya",
+    "passwordsNotMatch": "Parollar mos kelmadi",
+    "resetEmailSent": "Ko'rsatmalar elektron pochtangizga yuborildi",
+    "resetPasswordDescription": "Elektron pochtangizni kiriting va biz parolni tiklash bo'yicha ko'rsatmalar yuboramiz."
+  },
+  "home": {
+    "title": "Angren Taksi",
+    "orderTaxi": "Taksi buyurtma qilish",
+    "availableDrivers": "Mavjud haydovchilar: {{count}}",
+    "noDrivers": "Mavjud haydovchilar yo'q",
+    "currentOrder": "Joriy buyurtma"
+  },
+  "order": {
+    "from": "Qayerdan",
+    "to": "Qayerga",
+    "selectRoute": "Marshrut tanlang",
+    "carClass": "Avtomobil klassi",
+    "economy": "Ekonom",
+    "comfort": "Komfort",
+    "premium": "Premium",
+    "estimatedPrice": "Narx: {{price}}",
+    "estimatedTime": "Vaqt: {{time}}",
+    "createOrder": "Buyurtma berish",
+    "cancel": "Bekor qilish",
+    "status": {
+      "pending": "Haydovchi qidirilmoqda",
+      "accepted": "Haydovchi buyurtmani qabul qildi",
+      "arrived": "Haydovchi keldi",
+      "inProgress": "Yo'lda",
+      "completed": "Yakunlandi",
+      "cancelled": "Bekor qilindi"
+    },
+    "addressPlaceholder": "Manzilni kiriting",
+    "enterAddresses": "Boshlang'ich va oxirgi manzillarni kiriting",
+    "calculatePrice": "Narxni hisoblash"
+  },
+  "tracking": {
+    "driverInfo": "Haydovchi haqida ma'lumot",
+    "driverArriving": "Haydovchi sizga kelmoqda",
+    "tripInProgress": "Sayohat boshlandi",
+    "callDriver": "Haydovchiga qo'ng'iroq qilish",
+    "cancelOrder": "Buyurtmani bekor qilish",
+    "rate": "Sayohatni baholash",
+    "rateTitle": "Sayohat qanday o'tdi?",
+    "submitRating": "Bahoni yuborish",
+    "cancelConfirm": "Buyurtmani bekor qilishni xohlaysizmi?"
+  },
+  "payment": {
+    "title": "To'lov",
+    "cash": "Naqd pul",
+    "card": "Bank kartasi",
+    "amount": "Miqdor: {{amount}}",
+    "confirm": "To'lash",
+    "paymentSuccess": "To'lov muvaffaqiyatli amalga oshirildi",
+    "selectMethod": "To'lov usulini tanlang"
+  },
+  "profile": {
+    "title": "Profil",
+    "editProfile": "Profilni tahrirlash",
+    "name": "Ism",
+    "email": "Elektron pochta",
+    "phone": "Telefon",
+    "language": "Til",
+    "logout": "Chiqish",
+    "orderHistory": "Buyurtmalar tarixi",
+    "bonuses": "Bonuslar",
+    "saveChanges": "O'zgarishlarni saqlash",
+    "logoutConfirm": "Chiqishni xohlaysizmi?",
+    "rating": "Reyting"
+  },
+  "bonuses": {
+    "title": "Bonuslar",
+    "balance": "Sizning balansingiz",
+    "cashback": "Har bir sayohatdan {{percent}}% keshbek",
+    "history": "Bonuslar tarixi",
+    "earned": "Hisoblandi",
+    "spent": "Sarflandi",
+    "noHistory": "Bonuslar tarixi bo'sh",
+    "points": "ball"
+  },
+  "history": {
+    "title": "Buyurtmalar tarixi",
+    "noOrders": "Hali buyurtmalar yo'q",
+    "completed": "Yakunlangan",
+    "cancelled": "Bekor qilingan",
+    "dateFilter": "Sana bo'yicha filtr",
+    "allStatuses": "Barcha statuslar",
+    "pullToRefresh": "Yangilash uchun torting"
+  },
+  "validators": {
+    "passwordMinLength": "Parol kamida 8 ta belgidan iborat bo'lishi kerak",
+    "passwordNeedsLetter": "Parol kamida bitta harf o'z ichiga olishi kerak",
+    "passwordNeedsDigit": "Parol kamida bitta raqam o'z ichiga olishi kerak",
+    "fieldRequired": "{{field}} to'ldirilishi shart",
+    "invalidEmail": "To'g'ri elektron pochta manzilini kiriting",
+    "invalidPhone": "O'zbekiston telefon raqamini to'g'ri kiriting"
+  },
+  "driver": {
+    "etaMinutes": "~{{minutes}} daqiqada yetib keladi"
+  },
+  "map": {
+    "you": "Siz",
+    "driver": "Haydovchi",
+    "destination": "Manzil"
+  },
+  "error": {
+    "boundaryTitle": "Nimadir xato ketdi",
+    "boundaryMessage": "Kutilmagan xatolik yuz berdi",
+    "retry": "Qayta urinish"
+  },
+  "common": {
+    "loading": "Yuklanmoqda...",
+    "error": "Xatolik yuz berdi",
+    "retry": "Qayta urinish",
+    "save": "Saqlash",
+    "cancel": "Bekor qilish",
+    "confirm": "Tasdiqlash",
+    "back": "Orqaga",
+    "yes": "Ha",
+    "no": "Yo'q",
+    "close": "Yopish",
+    "ok": "OK",
+    "unknownError": "Noma'lum xatolik"
+  },
+  "navigation": {
+    "home": "Bosh sahifa",
+    "orders": "Buyurtmalar",
+    "bonuses": "Bonuslar",
+    "profile": "Profil"
+  }
+}

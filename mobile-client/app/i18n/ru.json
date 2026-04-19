@@ -1,0 +1,148 @@
+{
+  "auth": {
+    "login": "Вход",
+    "register": "Регистрация",
+    "forgotPassword": "Забыли пароль?",
+    "email": "Электронная почта",
+    "phone": "Телефон",
+    "password": "Пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "loginButton": "Войти",
+    "registerButton": "Зарегистрироваться",
+    "noAccount": "Нет аккаунта?",
+    "haveAccount": "Уже есть аккаунт?",
+    "forgotPasswordLink": "Забыли пароль?",
+    "resetPassword": "Сбросить пароль",
+    "sendCode": "Отправить код",
+    "name": "Имя",
+    "namePlaceholder": "Иван Иванов",
+    "passwordsNotMatch": "Пароли не совпадают",
+    "resetEmailSent": "Инструкции отправлены на вашу почту",
+    "resetPasswordDescription": "Введите email, и мы отправим инструкции по восстановлению пароля."
+  },
+  "home": {
+    "title": "Ангрен Такси",
+    "orderTaxi": "Заказать такси",
+    "availableDrivers": "Доступные водители: {{count}}",
+    "noDrivers": "Нет доступных водителей",
+    "currentOrder": "Текущий заказ"
+  },
+  "order": {
+    "from": "Откуда",
+    "to": "Куда",
+    "selectRoute": "Выберите маршрут",
+    "carClass": "Класс автомобиля",
+    "economy": "Эконом",
+    "comfort": "Комфорт",
+    "premium": "Премиум",
+    "estimatedPrice": "Стоимость: {{price}}",
+    "estimatedTime": "Время: {{time}}",
+    "createOrder": "Заказать",
+    "cancel": "Отменить",
+    "status": {
+      "pending": "Поиск водителя",
+      "accepted": "Водитель принял заказ",
+      "arrived": "Водитель прибыл",
+      "inProgress": "В пути",
+      "completed": "Завершён",
+      "cancelled": "Отменён"
+    },
+    "addressPlaceholder": "Введите адрес",
+    "enterAddresses": "Введите адреса отправления и назначения",
+    "calculatePrice": "Рассчитать стоимость"
+  },
+  "tracking": {
+    "driverInfo": "Информация о водителе",
+    "driverArriving": "Водитель едет к вам",
+    "tripInProgress": "Поездка началась",
+    "callDriver": "Позвонить водителю",
+    "cancelOrder": "Отменить заказ",
+    "rate": "Оценить поездку",
+    "rateTitle": "Как прошла поездка?",
+    "submitRating": "Отправить оценку",
+    "cancelConfirm": "Вы уверены, что хотите отменить заказ?"
+  },
+  "payment": {
+    "title": "Оплата",
+    "cash": "Наличные",
+    "card": "Банковская карта",
+    "amount": "Сумма: {{amount}}",
+    "confirm": "Оплатить",
+    "paymentSuccess": "Оплата прошла успешно",
+    "selectMethod": "Выберите способ оплаты"
+  },
+  "profile": {
+    "title": "Профиль",
+    "editProfile": "Редактировать профиль",
+    "name": "Имя",
+    "email": "Электронная почта",
+    "phone": "Телефон",
+    "language": "Язык",
+    "logout": "Выйти",
+    "orderHistory": "История заказов",
+    "bonuses": "Бонусы",
+    "saveChanges": "Сохранить изменения",
+    "logoutConfirm": "Вы уверены, что хотите выйти?",
+    "rating": "Рейтинг"
+  },
+  "bonuses": {
+    "title": "Бонусы",
+    "balance": "Ваш баланс",
+    "cashback": "Кэшбэк {{percent}}% с каждой поездки",
+    "history": "История бонусов",
+    "earned": "Начислено",
+    "spent": "Списано",
+    "noHistory": "История бонусов пуста",
+    "points": "баллов"
+  },
+  "history": {
+    "title": "История заказов",
+    "noOrders": "Заказов пока нет",
+    "completed": "Завершённые",
+    "cancelled": "Отменённые",
+    "dateFilter": "Фильтр по дате",
+    "allStatuses": "Все статусы",
+    "pullToRefresh": "Потяните для обновления"
+  },
+  "validators": {
+    "passwordMinLength": "Пароль должен содержать не менее 8 символов",
+    "passwordNeedsLetter": "Пароль должен содержать хотя бы одну букву",
+    "passwordNeedsDigit": "Пароль должен содержать хотя бы одну цифру",
+    "fieldRequired": "{{field}} обязательно для заполнения",
+    "invalidEmail": "Введите корректный email",
+    "invalidPhone": "Введите корректный номер телефона Узбекистана"
+  },
+  "driver": {
+    "etaMinutes": "Прибудет через ~{{minutes}} мин"
+  },
+  "map": {
+    "you": "Вы",
+    "driver": "Водитель",
+    "destination": "Назначение"
+  },
+  "error": {
+    "boundaryTitle": "Что-то пошло не так",
+    "boundaryMessage": "Произошла неожиданная ошибка",
+    "retry": "Повторить"
+  },
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Произошла ошибка",
+    "retry": "Повторить",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "back": "Назад",
+    "yes": "Да",
+    "no": "Нет",
+    "close": "Закрыть",
+    "ok": "ОК",
+    "unknownError": "Неизвестная ошибка"
+  },
+  "navigation": {
+    "home": "Главная",
+    "orders": "Заказы",
+    "bonuses": "Бонусы",
+    "profile": "Профиль"
+  }
+}
