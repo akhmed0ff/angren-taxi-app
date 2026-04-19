@@ -24,6 +24,7 @@ const ANGREN_REGION = {
 
 const DRIVER_TRACK_THROTTLE_MS = 2000;
 const MAX_DRIVER_MARKERS = 30;
+const FIT_DEBOUNCE_MS = 500;
 
 /** Расстояние между двумя точками в метрах (формула Haversine) */
 function getDistance(a: Location, b: Location): number {
@@ -49,6 +50,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   const { t } = useTranslation();
   const mapRef = useRef<MapView>(null);
   const lastUpdateTimeRef = useRef<number>(0);
+  const fitDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * Ближайшие MAX_DRIVER_MARKERS водителей.
@@ -67,7 +69,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     return sorted.slice(0, MAX_DRIVER_MARKERS);
   }, [driversLocations, userLocation]);
 
-  // Режим поиска: fitToCoordinates / animateToRegion для всех точек
+  // Режим поиска: fitToCoordinates / animateToRegion с debounce 500мс
   useEffect(() => {
     if (mode !== 'search') return;
 
@@ -76,22 +78,38 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     if (driverLocation) coords.push(driverLocation);
     if (destination) coords.push(destination);
 
-    if (coords.length > 1 && mapRef.current) {
-      mapRef.current.fitToCoordinates(coords, {
-        edgePadding: { top: 60, right: 60, bottom: 60, left: 60 },
-        animated: true,
-      });
-    } else if (coords.length === 1 && mapRef.current) {
-      mapRef.current.animateToRegion(
-        {
-          latitude: coords[0].latitude,
-          longitude: coords[0].longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        },
-        400,
-      );
+    // Отменяем предыдущий отложенный вызов
+    if (fitDebounceRef.current) {
+      clearTimeout(fitDebounceRef.current);
     }
+
+    fitDebounceRef.current = setTimeout(() => {
+      if (!mapRef.current) return;
+
+      if (coords.length >= 2) {
+        // Защита: fitToCoordinates только при 2+ точках
+        mapRef.current.fitToCoordinates(coords, {
+          edgePadding: { top: 60, right: 60, bottom: 60, left: 60 },
+          animated: true,
+        });
+      } else if (coords.length === 1) {
+        mapRef.current.animateToRegion(
+          {
+            latitude: coords[0].latitude,
+            longitude: coords[0].longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          },
+          400,
+        );
+      }
+    }, FIT_DEBOUNCE_MS);
+
+    return () => {
+      if (fitDebounceRef.current) {
+        clearTimeout(fitDebounceRef.current);
+      }
+    };
   }, [mode, userLocation, driverLocation, destination]);
 
   // Режим активного заказа: следим за водителем с throttle 2 сек
