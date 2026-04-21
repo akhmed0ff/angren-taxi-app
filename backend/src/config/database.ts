@@ -39,7 +39,7 @@ function initializeSchema(db: Database.Database): void {
       phone TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
       password_hash TEXT NOT NULL,
-      type TEXT NOT NULL CHECK(type IN ('passenger', 'driver')),
+      type TEXT NOT NULL CHECK(type IN ('passenger', 'driver', 'admin')),
       language TEXT NOT NULL DEFAULT 'ru',
       created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
       updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))

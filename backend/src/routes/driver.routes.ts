@@ -12,6 +12,10 @@ router.post('/offline', authMiddleware, driverOnly, (req, res, next) =>
   driverController.setOffline(req, res, next)
 );
 
+router.put('/location', authMiddleware, driverOnly, (req, res, next) =>
+  driverController.updateLocation(req, res, next)
+);
+
 router.get('/profile', authMiddleware, driverOnly, (req, res, next) =>
   driverController.getProfile(req, res, next)
 );

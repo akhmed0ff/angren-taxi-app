@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
+import { emitDriverLocationUpdated } from '../realtime/socket';
 import { driverService } from '../services/driver.service';
 
 export class DriverController {
@@ -42,6 +43,35 @@ export class DriverController {
         res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
         return;
       }
+      next(err);
+    }
+  }
+
+  updateLocation(req: AuthRequest, res: Response, next: NextFunction): void {
+    try {
+      const { latitude, longitude } = req.body as { latitude: number; longitude: number };
+
+      if (
+        typeof latitude !== 'number' || latitude < -90 || latitude > 90 ||
+        typeof longitude !== 'number' || longitude < -180 || longitude > 180
+      ) {
+        res.status(400).json({ success: false, message: 'Invalid coordinates' });
+        return;
+      }
+
+      driverService.updateLocation(req.user!.userId, latitude, longitude);
+
+      const driver = driverService.getDriver(req.user!.userId);
+      if (driver) {
+        emitDriverLocationUpdated({
+          driverId: driver.id,
+          latitude,
+          longitude,
+        });
+      }
+
+      res.json({ success: true });
+    } catch (err) {
       next(err);
     }
   }

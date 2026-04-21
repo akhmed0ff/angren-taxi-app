@@ -4,7 +4,7 @@ import { env } from '../config/env';
 
 export interface JwtPayload {
   userId: string;
-  type: 'passenger' | 'driver';
+  type: 'passenger' | 'driver' | 'admin';
 }
 
 export function signToken(payload: JwtPayload): string {

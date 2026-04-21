@@ -1,5 +1,6 @@
 import { getDatabase } from '../config/database';
 import { Driver, DriverWithUser } from '../models/driver.model';
+import { locationCache } from './location-cache.service';
 
 export class DriverService {
   getDriver(userId: string): Driver | null {
@@ -36,11 +37,8 @@ export class DriverService {
   }
 
   updateLocation(userId: string, latitude: number, longitude: number): void {
-    const db = getDatabase();
-    db.prepare(
-      `UPDATE drivers SET latitude = ?, longitude = ?, updated_at = strftime('%s', 'now')
-       WHERE user_id = ?`
-    ).run(latitude, longitude, userId);
+    // Только в кэш — flush в БД каждые 30 сек
+    locationCache.update(userId, latitude, longitude);
   }
 
   getOnlineDrivers(category?: string): DriverWithUser[] {

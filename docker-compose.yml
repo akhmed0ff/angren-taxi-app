@@ -27,5 +27,20 @@ services:
       retries: 3
       start_period: 10s
 
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: angren-taxi-admin
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://backend:3000/api
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   taxi_data:

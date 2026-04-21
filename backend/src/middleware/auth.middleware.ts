@@ -39,3 +39,11 @@ export function passengerOnly(req: AuthRequest, res: Response, next: NextFunctio
   }
   next();
 }
+
+export function adminOnly(req: AuthRequest, res: Response, next: NextFunction): void {
+  if (req.user?.type !== 'admin') {
+    res.status(403).json({ success: false, message: 'Admin access required' });
+    return;
+  }
+  next();
+}
