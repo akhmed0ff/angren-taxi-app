@@ -77,9 +77,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.angrentaxi"
+    namespace "com.angrentaxidriver"
     defaultConfig {
-        applicationId "com.angrentaxi"
+        applicationId "com.angrentaxidriver"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

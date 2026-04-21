@@ -1,4 +1,4 @@
-package com.tempapp
+package com.angrentaxidriver
 
 import android.app.Application
 import com.facebook.react.PackageList

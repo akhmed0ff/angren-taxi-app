@@ -1,4 +1,4 @@
-package com.tempapp
+package com.angrentaxidriver
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
