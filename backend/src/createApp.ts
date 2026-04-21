@@ -12,8 +12,6 @@ import orderRoutes from './routes/order.routes';
 import driverRoutes from './routes/driver.routes';
 import paymentRoutes from './routes/payment.routes';
 import bonusRoutes from './routes/bonus.routes';
-import taxiRoutes from './routes/taxi.routes';
-import rideRoutes from './routes/rides.routes';
 
 /**
  * Фабрика Express-приложения без вызова listen() и WebSocketServer.
@@ -40,8 +38,6 @@ export function createApp(): Express {
   app.use('/api/drivers', driverRoutes);
   app.use('/api/payments', paymentRoutes);
   app.use('/api/bonuses', bonusRoutes);
-  app.use('/api/rides', rideRoutes);
-  app.use('/api/taxi', taxiRoutes);
 
   app.use(notFoundMiddleware);
   app.use(errorMiddleware);
