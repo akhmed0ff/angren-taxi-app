@@ -11,7 +11,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - JWT_SECRET=${JWT_SECRET:-change_this_secret_in_production}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3001}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required. Set it in your .env file or environment}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
       - DATABASE_PATH=/app/data/angren_taxi.db
       - DEFAULT_LANGUAGE=ru

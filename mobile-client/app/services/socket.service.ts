@@ -5,6 +5,8 @@ type DriverLocationCallback = (data: { driverId: string; location: Location }) =
 type OrderStatusCallback = (data: { orderId: string; status: string }) => void;
 type DriverAssignedCallback = (data: { orderId: string; driver: Driver }) => void;
 
+type Unsubscribe = () => void;
+
 class SocketService {
   private ws: WebSocket | null = null;
   private reconnectAttempts = 0;
@@ -33,10 +35,11 @@ class SocketService {
       this.ws.close();
     }
 
-    this.ws = new WebSocket(`${SOCKET_URL}?token=${this.token ?? ''}`);
+    this.ws = new WebSocket(SOCKET_URL);
 
     this.ws.onopen = () => {
       this.reconnectAttempts = 0;
+      this.ws?.send(JSON.stringify({ type: 'auth', data: { token: this.token } }));
       if (__DEV__) console.log('[Socket] Connected');
     };
 
@@ -100,16 +103,25 @@ class SocketService {
     this.ws = null;
   }
 
-  onDriverLocation(callback: DriverLocationCallback): void {
+  onDriverLocation(callback: DriverLocationCallback): Unsubscribe {
     this.listeners.driverLocation.push(callback);
+    return () => {
+      this.listeners.driverLocation = this.listeners.driverLocation.filter((cb) => cb !== callback);
+    };
   }
 
-  onOrderStatusChange(callback: OrderStatusCallback): void {
+  onOrderStatusChange(callback: OrderStatusCallback): Unsubscribe {
     this.listeners.orderStatus.push(callback);
+    return () => {
+      this.listeners.orderStatus = this.listeners.orderStatus.filter((cb) => cb !== callback);
+    };
   }
 
-  onDriverAssigned(callback: DriverAssignedCallback): void {
+  onDriverAssigned(callback: DriverAssignedCallback): Unsubscribe {
     this.listeners.driverAssigned.push(callback);
+    return () => {
+      this.listeners.driverAssigned = this.listeners.driverAssigned.filter((cb) => cb !== callback);
+    };
   }
 
   removeAllListeners(): void {

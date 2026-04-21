@@ -2,7 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { orderService } from '../services/order.service';
 import { driverService } from '../services/driver.service';
-import { isValidCategory, isValidPaymentMethod } from '../utils/validators';
+import { isValidCategory, isValidPaymentMethod, isValidLatitude, isValidLongitude } from '../utils/validators';
 import { CreateOrderInput } from '../models/order.model';
 
 export class OrderController {
@@ -32,6 +32,16 @@ export class OrderController {
 
       if (!isValidPaymentMethod(payment_method)) {
         res.status(400).json({ success: false, message: req.t?.('validation.invalid_payment') });
+        return;
+      }
+
+      if (
+        !isValidLatitude(from_latitude) ||
+        !isValidLongitude(from_longitude) ||
+        !isValidLatitude(to_latitude) ||
+        !isValidLongitude(to_longitude)
+      ) {
+        res.status(400).json({ success: false, message: req.t?.('validation.invalid_coordinates') });
         return;
       }
 
@@ -70,8 +80,29 @@ export class OrderController {
         res.status(404).json({ success: false, message: req.t?.('order.not_found') });
         return;
       }
+
+      const { userId, type } = req.user!;
+
+      // Для водителя нужен его drivers.id (не userId) для сравнения с order.driver_id
+      let driverRecordId: string | null = null;
+      if (type === 'driver') {
+        const driver = driverService.getDriver(userId);
+        if (!driver) {
+          res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
+          return;
+        }
+        driverRecordId = driver.id;
+      }
+
+      orderService.assertCanViewOrder(order, userId, type, driverRecordId);
+
       res.json({ success: true, data: order });
     } catch (err) {
+      const error = err as Error;
+      if (error.message === 'ORDER_ACCESS_DENIED') {
+        res.status(403).json({ success: false, message: req.t?.('errors.forbidden') });
+        return;
+      }
       next(err);
     }
   }
@@ -102,7 +133,6 @@ export class OrderController {
       }
 
       const order = orderService.acceptOrder(orderId, driver.id, vehicleId);
-      driverService.setBusy(driver.id);
 
       res.json({
         success: true,
@@ -112,7 +142,15 @@ export class OrderController {
     } catch (err) {
       const error = err as Error;
       if (error.message === 'ORDER_NOT_AVAILABLE') {
-        res.status(409).json({ success: false, message: req.t?.('order.not_found') });
+        res.status(409).json({ success: false, message: req.t?.('order.not_available') ?? 'Order is no longer available' });
+        return;
+      }
+      if (error.message === 'DRIVER_NOT_AVAILABLE') {
+        res.status(409).json({ success: false, message: req.t?.('driver.not_available') });
+        return;
+      }
+      if (error.message === 'DRIVER_NOT_FOUND') {
+        res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
         return;
       }
       next(err);

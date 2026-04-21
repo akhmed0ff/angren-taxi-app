@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { OrderService } from './order.service';
-import { validateCoordinates, validateString } from '@/common/validators';
+import { validateCoordinates, validateString } from '../../common/validators';
 
 const router = Router();
 const service = new OrderService();
@@ -24,7 +24,7 @@ const VALID_STATUSES = ['searching', 'assigned', 'on_the_way', 'arrived', 'compl
 // POST /orders - Create order
 router.post('/', async (req: Request<never, never, CreateOrderRequest>, res: Response) => {
   try {
-    const { fromLatitude, fromLongitude, toLatitude, toLongitude, driverId } = req.body;
+    const { fromLatitude, fromLongitude, toLatitude, toLongitude } = req.body;
 
     // Validation
     const fromErrors = validateCoordinates(fromLatitude, fromLongitude);
@@ -40,7 +40,6 @@ router.post('/', async (req: Request<never, never, CreateOrderRequest>, res: Res
       fromLongitude,
       toLatitude,
       toLongitude,
-      driverId,
     });
 
     res.status(201).json(order);

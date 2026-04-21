@@ -3,20 +3,33 @@ import path from 'path';
 import fs from 'fs';
 import { env } from './env';
 
-let db: Database.Database;
+let db: Database.Database | undefined;
 
 export function getDatabase(): Database.Database {
   if (!db) {
-    const dbDir = path.dirname(path.resolve(env.databasePath));
-    if (!fs.existsSync(dbDir)) {
-      fs.mkdirSync(dbDir, { recursive: true });
+    // ':memory:' — специальное имя SQLite для базы в памяти (используется в тестах)
+    if (env.databasePath === ':memory:') {
+      db = new Database(':memory:');
+    } else {
+      const dbDir = path.dirname(path.resolve(env.databasePath));
+      if (!fs.existsSync(dbDir)) {
+        fs.mkdirSync(dbDir, { recursive: true });
+      }
+      db = new Database(path.resolve(env.databasePath));
+      db.pragma('journal_mode = WAL');
     }
-    db = new Database(path.resolve(env.databasePath));
-    db.pragma('journal_mode = WAL');
     db.pragma('foreign_keys = ON');
     initializeSchema(db);
   }
   return db;
+}
+
+/** Закрывает соединение и сбрасывает синглтон. Используется в afterAll тестов. */
+export function closeDatabase(): void {
+  if (db) {
+    db.close();
+    db = undefined;
+  }
 }
 
 function initializeSchema(db: Database.Database): void {
@@ -128,6 +141,15 @@ function initializeSchema(db: Database.Database): void {
       FOREIGN KEY (passenger_id) REFERENCES users(id)
     );
 
+    CREATE TABLE IF NOT EXISTS refresh_tokens (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      token TEXT UNIQUE NOT NULL,
+      expires_at INTEGER NOT NULL,
+      created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
     CREATE INDEX IF NOT EXISTS idx_drivers_user_id ON drivers(user_id);
     CREATE INDEX IF NOT EXISTS idx_drivers_status ON drivers(status);
@@ -135,5 +157,7 @@ function initializeSchema(db: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_orders_driver_id ON orders(driver_id);
     CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
     CREATE INDEX IF NOT EXISTS idx_bonuses_user_id ON bonuses(user_id);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_bonuses_order_type ON bonuses(order_id, type);
+    CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
   `);
 }

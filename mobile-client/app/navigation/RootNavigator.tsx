@@ -1,22 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
 
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { restoreSessionThunk } from '../store/slices/auth.slice';
-import { AuthNavigator } from './AuthNavigator';
 import { MainNavigator } from './MainNavigator';
 import { SplashScreen } from '../screens/main/SplashScreen';
+import type { RootStackParamList } from '../types';
 
-export const RootNavigator: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+const RootStack = createStackNavigator<RootStackParamList>();
 
-  useEffect(() => {
-    dispatch(restoreSessionThunk());
-  }, [dispatch]);
-
-  if (isLoading) {
-    return <SplashScreen />;
-  }
-
-  return isAuthenticated ? <MainNavigator /> : <AuthNavigator />;
-};
+export const RootNavigator: React.FC = () => (
+  <RootStack.Navigator screenOptions={{ headerShown: false }}>
+    <RootStack.Screen name="Splash" component={SplashScreen} />
+    <RootStack.Screen name="Main" component={MainNavigator} />
+  </RootStack.Navigator>
+);

@@ -16,15 +16,14 @@ export function useTracking(driverId?: string) {
   );
 
   useEffect(() => {
-    socketService.onDriverLocation(handleDriverLocation);
+    const unsubscribe = socketService.onDriverLocation(handleDriverLocation);
 
     return () => {
-      socketService.removeAllListeners();
+      unsubscribe();
     };
   }, [handleDriverLocation]);
 
   const stopTracking = useCallback(() => {
-    socketService.removeAllListeners();
     setDriverLocation(null);
   }, []);
 

@@ -1,4 +1,4 @@
-import { prisma } from '@/core/db/prisma';
+import { prisma } from '../../core/db/prisma';
 import type { Order, Prisma } from '@prisma/client';
 
 export class OrderRepository {

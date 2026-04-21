@@ -7,6 +7,7 @@ const router = Router();
 
 router.post('/register', authRateLimiter, (req, res, next) => authController.register(req, res, next));
 router.post('/login', authRateLimiter, (req, res, next) => authController.login(req, res, next));
+router.post('/refresh', authController.refresh.bind(authController));
 router.get('/me', authMiddleware, (req, res) => authController.getMe(req, res));
 
 export default router;

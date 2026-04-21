@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { authService } from '../services/auth.service';
-import { isValidUserType } from '../utils/validators';
+import { isValidUserType, isValidName, isValidPassword } from '../utils/validators';
 
 export class AuthController {
   async register(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
@@ -21,6 +21,16 @@ export class AuthController {
 
       if (!isValidUserType(type)) {
         res.status(400).json({ success: false, message: req.t?.('validation.invalid_type') });
+        return;
+      }
+
+      if (!isValidName(name)) {
+        res.status(400).json({ success: false, message: req.t?.('validation.invalid_name') });
+        return;
+      }
+
+      if (!isValidPassword(password)) {
+        res.status(400).json({ success: false, message: req.t?.('validation.invalid_password') });
         return;
       }
 
@@ -63,6 +73,30 @@ export class AuthController {
       const error = err as Error;
       if (error.message === 'INVALID_CREDENTIALS') {
         res.status(401).json({ success: false, message: req.t?.('auth.invalid_credentials') });
+        return;
+      }
+      next(err);
+    }
+  }
+
+  async refresh(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { refreshToken } = req.body as { refreshToken: string };
+
+      if (!refreshToken) {
+        res.status(400).json({ success: false, message: req.t?.('validation.required') });
+        return;
+      }
+
+      const result = await authService.refreshSession(refreshToken);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (err) {
+      const error = err as Error;
+      if (error.message === 'INVALID_REFRESH_TOKEN') {
+        res.status(401).json({ success: false, message: 'Invalid refresh token' });
         return;
       }
       next(err);

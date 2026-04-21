@@ -15,10 +15,15 @@ import { MapComponent } from '../../components/MapComponent';
 import { DriverCard } from '../../components/DriverCard';
 import { Button } from '../../components/Button';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { useTracking } from '../../hooks/useTracking';
 import { useOrders } from '../../hooks/useOrders';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { updateCurrentOrderStatus } from '../../store/slices/orders.slice';
+import {
+  clearRideRealtimeState,
+  setActiveRideId,
+  setDriverLocation,
+  setRideStatus,
+} from '../../store/slices/ride.slice';
 import { socketService } from '../../services/socket.service';
 import { rateDriver } from '../../services/orders.service';
 import { COLORS, ORDER_STATUS_COLORS } from '../../utils/constants';
@@ -38,22 +43,44 @@ export const OrderTrackingScreen: React.FC<Props> = ({ navigation, route }) => {
   const { orderId } = route.params;
   const { cancelOrder, isLoading } = useOrders();
   const { currentOrder } = useAppSelector((s) => s.orders);
-  const { driverLocation } = useTracking(currentOrder?.driver?.id);
+  const { driverLocation, status: rideStatus } = useAppSelector((s) => s.ride);
 
   const [ratingVisible, setRatingVisible] = useState(false);
   const [selectedRating, setSelectedRating] = useState(5);
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
 
   useEffect(() => {
-    socketService.onOrderStatusChange(({ orderId: id, status }) => {
+    dispatch(setActiveRideId(orderId));
+    if (currentOrder?.status) {
+      dispatch(setRideStatus(currentOrder.status));
+    }
+
+    return () => {
+      dispatch(clearRideRealtimeState());
+    };
+  }, [dispatch, orderId, currentOrder?.status]);
+
+  useEffect(() => {
+    const unsubscribeStatus = socketService.onOrderStatusChange(({ orderId: id, status }) => {
       if (id === orderId) {
+        dispatch(setRideStatus(status));
         dispatch(updateCurrentOrderStatus(status as any));
         if (status === 'completed') setRatingVisible(true);
         if (status === 'cancelled') navigation.goBack();
       }
     });
-    return () => { socketService.removeAllListeners(); };
-  }, [orderId, dispatch, navigation]);
+
+    const unsubscribeDriverLocation = socketService.onDriverLocation(({ driverId, location }) => {
+      if (currentOrder?.driver?.id && driverId === currentOrder.driver.id) {
+        dispatch(setDriverLocation(location));
+      }
+    });
+
+    return () => {
+      unsubscribeStatus();
+      unsubscribeDriverLocation();
+    };
+  }, [orderId, dispatch, navigation, currentOrder?.driver?.id]);
 
   const handleCancel = () => {
     Alert.alert(t('common.confirm'), t('tracking.cancelConfirm'), [
@@ -83,8 +110,9 @@ export const OrderTrackingScreen: React.FC<Props> = ({ navigation, route }) => {
 
   if (!currentOrder) return <LoadingSpinner fullscreen />;
 
-  const statusColor = ORDER_STATUS_COLORS[currentOrder.status] ?? COLORS.textSecondary;
-  const canCancel = ['pending', 'accepted'].includes(currentOrder.status);
+  const effectiveStatus = rideStatus ?? currentOrder.status;
+  const statusColor = ORDER_STATUS_COLORS[effectiveStatus] ?? COLORS.textSecondary;
+  const canCancel = ['pending', 'accepted'].includes(effectiveStatus);
 
   const statusMessages: Record<string, string> = {
     pending: t('order.status.pending'),
@@ -109,7 +137,7 @@ export const OrderTrackingScreen: React.FC<Props> = ({ navigation, route }) => {
         {/* Status bar */}
         <View style={[styles.statusBar, { backgroundColor: `${statusColor}20` }]}>
           <Text style={[styles.statusText, { color: statusColor }]}>
-            {statusMessages[currentOrder.status] ?? currentOrder.status}
+            {statusMessages[effectiveStatus] ?? effectiveStatus}
           </Text>
         </View>
 

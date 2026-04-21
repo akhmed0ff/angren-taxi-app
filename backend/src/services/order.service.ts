@@ -70,6 +70,29 @@ export class OrderService {
     return db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId) as Order | null;
   }
 
+  /**
+   * Проверяет право доступа к заказу.
+   * Пассажир видит только свои заказы, водитель — только назначенные ему.
+   * Бросает ORDER_ACCESS_DENIED если доступ запрещён.
+   */
+  assertCanViewOrder(
+    order: Order,
+    userId: string,
+    userType: 'passenger' | 'driver',
+    driverRecordId: string | null
+  ): void {
+    if (userType === 'passenger') {
+      if (order.passenger_id !== userId) {
+        throw new Error('ORDER_ACCESS_DENIED');
+      }
+    } else {
+      // driver_id в заказе — это drivers.id, не users.id
+      if (!driverRecordId || order.driver_id !== driverRecordId) {
+        throw new Error('ORDER_ACCESS_DENIED');
+      }
+    }
+  }
+
   getAvailableOrders(category?: string): Order[] {
     const db = getDatabase();
     if (category) {
@@ -84,16 +107,59 @@ export class OrderService {
 
   acceptOrder(orderId: string, driverId: string, vehicleId: string): Order {
     const db = getDatabase();
-    db.prepare(
-      `UPDATE orders SET driver_id = ?, vehicle_id = ?, status = 'accepted',
-       updated_at = strftime('%s', 'now') WHERE id = ? AND status = 'pending'`
-    ).run(driverId, vehicleId, orderId);
+    db.transaction(() => {
+      // Проверяем статус водителя внутри транзакции, чтобы исключить TOCTOU:
+      // водитель не должен успеть стать offline/busy между проверкой в контроллере и этим UPDATE.
+      const driver = db.prepare(
+        `SELECT id, status FROM drivers WHERE id = ?`
+      ).get(driverId) as { id: string; status: string } | undefined;
 
-    const order = this.getOrderById(orderId);
-    if (!order || order.status !== 'accepted') {
-      throw new Error('ORDER_NOT_AVAILABLE');
-    }
-    return order;
+      if (!driver) {
+        throw new Error('DRIVER_NOT_FOUND');
+      }
+      if (driver.status !== 'online') {
+        throw new Error('DRIVER_NOT_AVAILABLE');
+      }
+
+      const result = db.prepare(
+        `UPDATE orders SET driver_id = ?, vehicle_id = ?, status = 'accepted',
+         updated_at = strftime('%s', 'now') WHERE id = ? AND status = 'pending'`
+      ).run(driverId, vehicleId, orderId);
+
+      if (result.changes === 0) {
+        throw new Error('ORDER_NOT_AVAILABLE');
+      }
+
+      // Атомарно переводим водителя в busy внутри той же транзакции,
+      // чтобы исключить race condition между принятием заказа и сменой статуса.
+      db.prepare(
+        `UPDATE drivers SET status = 'busy', updated_at = strftime('%s', 'now') WHERE id = ?`
+      ).run(driverId);
+
+      const acceptedOrder = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId) as Order | undefined;
+      if (!acceptedOrder) {
+        throw new Error('ORDER_NOT_AVAILABLE');
+      }
+
+      db.prepare(
+        `INSERT INTO order_history (id, order_id, passenger_id, driver_id, from_address,
+         to_address, category, final_price, payment_method, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).run(
+        uuidv4(),
+        acceptedOrder.id,
+        acceptedOrder.passenger_id,
+        acceptedOrder.driver_id,
+        acceptedOrder.from_address,
+        acceptedOrder.to_address,
+        acceptedOrder.category,
+        acceptedOrder.final_price,
+        acceptedOrder.payment_method,
+        acceptedOrder.status
+      );
+    })();
+
+    return this.getOrderById(orderId) as Order;
   }
 
   updateStatus(

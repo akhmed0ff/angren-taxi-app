@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { DriverService } from './driver.service';
-import { validateCoordinates, validateString, validateBoolean } from '@/common/validators';
+import { validateCoordinates, validateString, validateBoolean } from '../../common/validators';
 
 const router = Router();
 const service = new DriverService();
@@ -34,11 +34,7 @@ router.post('/', async (req: Request<never, never, CreateDriverRequest>, res: Re
       return res.status(400).json({ errors: allErrors });
     }
 
-    const driver = await service.createDriver({
-      name: name.trim(),
-      latitude,
-      longitude,
-    });
+    const driver = await service.createDriver(name.trim(), latitude, longitude);
 
     res.status(201).json(driver);
   } catch (error) {

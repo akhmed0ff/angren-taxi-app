@@ -6,6 +6,7 @@ import driversReducer from './slices/drivers.slice';
 import bonusesReducer from './slices/bonuses.slice';
 import paymentsReducer from './slices/payments.slice';
 import uiReducer from './slices/ui.slice';
+import rideReducer from './slices/ride.slice';
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     bonuses: bonusesReducer,
     payments: paymentsReducer,
     ui: uiReducer,
+    ride: rideReducer,
   },
 });
 

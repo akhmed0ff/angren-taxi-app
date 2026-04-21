@@ -157,6 +157,12 @@ export interface UIState {
   theme: Theme;
 }
 
+export interface RideState {
+  activeRideId: string | null;
+  status: string | null;
+  driverLocation: Location | null;
+}
+
 // ─── Navigation param lists ───────────────────────────────────────────────────
 
 export type AuthStackParamList = {
@@ -173,9 +179,13 @@ export type MainTabParamList = {
 };
 
 export type MainStackParamList = {
+  Main: undefined;
+  Details: undefined;
   MainTabs: undefined;
   OrderCreate: undefined;
   OrderTracking: { orderId: string };
+  TripDetails: undefined;
+  UserMenu: undefined;
   Payment: { orderId: string; amount: number };
   MyPlaces: undefined;
   Notifications: undefined;
@@ -183,6 +193,6 @@ export type MainStackParamList = {
 };
 
 export type RootStackParamList = {
-  Auth: undefined;
+  Splash: undefined;
   Main: undefined;
 };

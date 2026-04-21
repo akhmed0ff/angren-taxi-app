@@ -11,3 +11,4 @@ admin/.env.local
 admin/tsconfig.tsbuildinfo
 *.log
 .DS_Store
+node_modules/

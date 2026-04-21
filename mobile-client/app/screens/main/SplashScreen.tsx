@@ -1,27 +1,27 @@
 import React, { useEffect } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+
 import { COLORS } from '../../utils/constants';
-import { useAppSelector } from '../../store/hooks';
+import type { RootStackParamList } from '../../types';
+
+type SplashNavigationProp = StackNavigationProp<RootStackParamList, 'Splash'>;
 
 export const SplashScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
-  const { token } = useAppSelector((s) => s.auth);
+  const navigation = useNavigation<SplashNavigationProp>();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (token) {
-        navigation.replace('Main');
-      } else {
-        navigation.replace('Auth');
-      }
+      navigation.replace('Main');
     }, 2500);
+
     return () => clearTimeout(timer);
-  }, []);
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>angrentaxi</Text>
+      <Text style={styles.logo}>Ангрен такси</Text>
       <ActivityIndicator
         style={styles.spinner}
         size="small"

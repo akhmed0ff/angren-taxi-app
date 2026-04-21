@@ -9,7 +9,7 @@ import { LOCATION_TASK_NAME, LOCATION_UPDATE_INTERVAL } from '../utils/constants
 import { DriverLocation } from '../types';
 
 // Register background location task
-TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }: TaskManager.TaskManagerTaskBody) => {
+TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }: TaskManager.TaskManagerTaskBody) => {
   if (error) {
     console.error('[Location Task]', error);
     return;

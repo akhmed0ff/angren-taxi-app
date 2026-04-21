@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { paymentController } from '../controllers/payment.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
+import { authMiddleware, passengerOnly } from '../middleware/auth.middleware';
 
 const router = Router();
 
-router.post('/process', authMiddleware, (req, res, next) =>
+router.post('/process', authMiddleware, passengerOnly, (req, res, next) =>
   paymentController.processPayment(req, res, next)
 );
 

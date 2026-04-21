@@ -1,6 +1,6 @@
 import { DriverRepository } from './driver.repository';
-import { Prisma } from '@prisma/client';
-import type { Driver } from '@prisma/client';
+import type { Driver } from './driver.types';
+import { wsService } from '../../services/websocket.service';
 
 export type DriverStatus = 'IDLE' | 'BUSY' | 'OFFLINE';
 
@@ -24,10 +24,6 @@ export class DriverService {
 
   constructor() {
     this.repository = new DriverRepository();
-  }
-
-  private isPrismaNotFoundError(error: unknown): boolean {
-    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025';
   }
 
   private toRadians(value: number): number {
@@ -63,11 +59,11 @@ export class DriverService {
   }
 
   async createDriver(name: string, lat: number, lng: number): Promise<Driver> {
+    void name;
     return this.repository.create({
-      name,
-      latitude: lat,
-      longitude: lng,
-      isAvailable: true,
+      isOnline: true,
+      location: { lat, lng },
+      currentRideId: null,
     });
   }
 
@@ -86,47 +82,39 @@ export class DriverService {
 
   // Optimized for frequent realtime calls (single UPDATE, no pre-read).
   async updateLocation(driverId: string, lat: number, lng: number): Promise<Driver> {
-    try {
-      return await this.repository.updateLocation(driverId, lat, lng);
-    } catch (error) {
-      if (this.isPrismaNotFoundError(error)) {
-        throw new DriverServiceError('DRIVER_NOT_FOUND', `Driver ${driverId} not found`);
-      }
-
-      throw error;
-    }
+    return this.updateDriverLocation(driverId, lat, lng);
   }
 
   async setStatus(driverId: string, status: DriverStatus): Promise<Driver> {
-    try {
-      const isAvailable = this.statusToAvailability(status);
-      return await this.repository.updateAvailability(driverId, isAvailable);
-    } catch (error) {
-      if (error instanceof DriverServiceError) {
-        throw error;
-      }
+    const isAvailable = this.statusToAvailability(status);
+    const currentRideId = status === 'BUSY' ? 'busy' : null;
 
-      if (this.isPrismaNotFoundError(error)) {
-        throw new DriverServiceError('DRIVER_NOT_FOUND', `Driver ${driverId} not found`);
-      }
+    const updated = await this.repository.update(driverId, {
+      isOnline: isAvailable || status === 'BUSY',
+      currentRideId,
+    });
 
-      throw new DriverServiceError('INTERNAL_ERROR', 'Failed to set driver status');
+    if (!updated) {
+      throw new DriverServiceError('DRIVER_NOT_FOUND', `Driver ${driverId} not found`);
     }
+
+    return updated;
   }
 
   async findNearestDriver(lat: number, lng: number): Promise<Driver> {
-    const availableDrivers = await this.getAvailableDrivers();
+    const allDrivers = await this.getAllDrivers();
+    const availableDrivers = allDrivers.filter((driver) => driver.isOnline && driver.currentRideId === null);
 
     if (availableDrivers.length === 0) {
       throw new DriverServiceError('DRIVER_NOT_FOUND', 'No available (IDLE) drivers found');
     }
 
     let nearestDriver = availableDrivers[0];
-    let minDistance = this.calculateDistance(lat, lng, nearestDriver.latitude, nearestDriver.longitude);
+    let minDistance = this.calculateDistance(lat, lng, nearestDriver.location.lat, nearestDriver.location.lng);
 
     for (let i = 1; i < availableDrivers.length; i += 1) {
       const candidate = availableDrivers[i];
-      const candidateDistance = this.calculateDistance(lat, lng, candidate.latitude, candidate.longitude);
+      const candidateDistance = this.calculateDistance(lat, lng, candidate.location.lat, candidate.location.lng);
 
       if (candidateDistance < minDistance) {
         minDistance = candidateDistance;
@@ -138,8 +126,23 @@ export class DriverService {
   }
 
   // Backward-compatible aliases
-  async updateDriverLocation(id: string, latitude: number, longitude: number): Promise<Driver> {
-    return this.updateLocation(id, latitude, longitude);
+  async updateDriverLocation(driverId: string, lat: number, lng: number): Promise<Driver> {
+    const updatedDriver = await this.repository.update(driverId, {
+      location: { lat, lng },
+    });
+
+    if (!updatedDriver) {
+      throw new DriverServiceError('DRIVER_NOT_FOUND', `Driver ${driverId} not found`);
+    }
+
+    wsService.sendToUser(driverId, 'driver:location:update', {
+      driverId,
+      lat,
+      lng,
+      currentRideId: updatedDriver.currentRideId,
+    });
+
+    return updatedDriver;
   }
 
   async updateDriverAvailability(id: string, isAvailable: boolean): Promise<Driver> {
@@ -147,14 +150,12 @@ export class DriverService {
   }
 
   async deleteDriver(id: string): Promise<Driver> {
-    try {
-      return await this.repository.delete(id);
-    } catch (error) {
-      if (this.isPrismaNotFoundError(error)) {
-        throw new DriverServiceError('DRIVER_NOT_FOUND', `Driver ${id} not found`);
-      }
+    const deleted = await this.repository.delete(id);
 
-      throw new DriverServiceError('INTERNAL_ERROR', 'Failed to delete driver');
+    if (!deleted) {
+      throw new DriverServiceError('DRIVER_NOT_FOUND', `Driver ${id} not found`);
     }
+
+    return deleted;
   }
 }

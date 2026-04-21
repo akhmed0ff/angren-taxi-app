@@ -24,6 +24,7 @@
     "online": "Haydovchi onlayn",
     "offline": "Haydovchi oflayn",
     "not_found": "Haydovchi topilmadi",
+    "not_available": "Haydovchi buyurtma qabul qilish uchun mavjud emas",
     "profile_updated": "Profil yangilandi",
     "insufficient_balance": "Oldindan to'lov balansi yetarli emas",
     "no_orders": "Mavjud buyurtmalar yo'q"
@@ -43,7 +44,10 @@
     "invalid_phone": "Telefon raqamining formati noto'g'ri",
     "invalid_type": "Foydalanuvchi turi noto'g'ri",
     "invalid_category": "Avtomobil toifasi noto'g'ri",
-    "invalid_payment": "To'lov usuli noto'g'ri"
+    "invalid_payment": "To'lov usuli noto'g'ri",
+    "invalid_coordinates": "Marshrut koordinatalari noto'g'ri",
+    "invalid_name": "Ism 2 dan 64 gacha belgidan iborat bo'lishi kerak",
+    "invalid_password": "Parol kamida 8 ta belgidan iborat bo'lishi kerak"
   },
   "errors": {
     "internal": "Ichki server xatosi",

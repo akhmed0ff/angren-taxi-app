@@ -115,7 +115,7 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.user = action.payload.user;
       state.token = action.payload.token;
-      state.refreshToken = action.payload.refreshToken;
+      state.refreshToken = action.payload.refreshToken ?? null;
       state.isAuthenticated = true;
     });
     builder.addCase(loginThunk.rejected, (state, action) => {
@@ -167,7 +167,7 @@ const authSlice = createSlice({
       if (action.payload) {
         state.user = action.payload.user;
         state.token = action.payload.token;
-        state.refreshToken = action.payload.refreshToken;
+        state.refreshToken = action.payload.refreshToken ?? null;
         state.isAuthenticated = true;
       }
     });

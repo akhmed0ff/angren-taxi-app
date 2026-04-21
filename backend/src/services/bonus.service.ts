@@ -18,11 +18,16 @@ export class BonusService {
     const bonusAmount = Math.round(rideAmount * CASHBACK_RATE);
     const id = uuidv4();
 
+    // INSERT OR IGNORE: если бонус типа 'cashback' за этот заказ уже существует
+    // (UNIQUE constraint на order_id + type), новая строка не вставляется — без исключения.
     db.prepare(
-      `INSERT INTO bonuses (id, user_id, order_id, amount, type) VALUES (?, ?, ?, ?, 'cashback')`
+      `INSERT OR IGNORE INTO bonuses (id, user_id, order_id, amount, type) VALUES (?, ?, ?, ?, 'cashback')`
     ).run(id, userId, orderId, bonusAmount);
 
-    return db.prepare('SELECT * FROM bonuses WHERE id = ?').get(id) as Bonus;
+    // Возвращаем существующую запись независимо от того, была ли вставка.
+    return db.prepare(
+      `SELECT * FROM bonuses WHERE order_id = ? AND type = 'cashback'`
+    ).get(orderId) as Bonus;
   }
 
   getBalance(userId: string): number {

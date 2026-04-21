@@ -2,8 +2,6 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { paymentService } from '../services/payment.service';
 import { orderService } from '../services/order.service';
-import { driverService } from '../services/driver.service';
-import { bonusService } from '../services/bonus.service';
 import { isValidPaymentMethod } from '../utils/validators';
 
 export class PaymentController {
@@ -27,30 +25,23 @@ export class PaymentController {
         return;
       }
 
+      // Ownership check: оплачивать может только пассажир, которому принадлежит заказ.
+      // passengerOnly на роуте гарантирует type === 'passenger', поэтому userId === passenger userId.
+      if (order.passenger_id !== req.user!.userId) {
+        res.status(403).json({ success: false, message: req.t?.('errors.forbidden') });
+        return;
+      }
+
       const amount = order.final_price ?? order.estimated_price;
       const validMethod = method as 'cash' | 'card';
 
-      let payment = paymentService.getPaymentByOrderId(orderId);
-      if (!payment) {
-        payment = paymentService.createPayment(
-          orderId,
-          order.passenger_id,
-          order.driver_id,
-          amount,
-          validMethod
-        );
-      }
-
-      const processed = paymentService.processPayment(orderId);
-
-      bonusService.awardCashback(order.passenger_id, orderId, amount);
-
-      if (order.driver_id) {
-        const driver = driverService.getDriverById(order.driver_id);
-        if (driver) {
-          driverService.setAvailable(order.driver_id);
-        }
-      }
+      const processed = paymentService.settle(
+        orderId,
+        order.passenger_id,
+        order.driver_id,
+        amount,
+        validMethod
+      );
 
       res.json({
         success: true,

@@ -1,7 +1,7 @@
 import { OrderRepository } from './order.repository';
-import { DriverRepository } from '@/modules/driver/driver.repository';
-import { prisma } from '@/core/db/prisma';
-import type { Order } from '@prisma/client';
+import { DriverRepository } from '../driver/driver.repository';
+import { prisma } from '../../core/db/prisma';
+import type { Order, Prisma } from '@prisma/client';
 
 // Constants
 const ORDER_STATUS = {
@@ -197,7 +197,7 @@ export class OrderService {
       }
 
       // Update order and driver in transaction
-      const updatedOrder = await prisma.$transaction(async (tx) => {
+      const updatedOrder = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         await tx.driver.update({
           where: { id: nearestDriver.id },
           data: { isAvailable: false },
@@ -235,7 +235,7 @@ export class OrderService {
 
       // If completing order, free up the driver
       if (newStatus === ORDER_STATUS.COMPLETED && order.driverId) {
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
           await tx.driver.update({
             where: { id: order.driverId! },
             data: { isAvailable: true },
@@ -318,7 +318,7 @@ export class OrderService {
 
       // Free up driver if assigned
       if (order.driverId) {
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
           await tx.driver.update({
             where: { id: order.driverId! },
             data: { isAvailable: true },
