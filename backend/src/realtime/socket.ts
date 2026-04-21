@@ -1,5 +1,5 @@
 import { getIo } from '../infrastructure/socket';
-import { TaxiDriverService } from '../modules/taxi/driver/driver.service';
+import { DriverService } from '../modules/driver/driver.service';
 import type { RideWithRelations } from '../modules/rides/ride.types';
 
 // ---------------------------------------------------------------------------
@@ -52,7 +52,7 @@ function moveRoomMembersToRideRoom(sourceRoom: string, rideId: string): void {
   }
 }
 
-const driverService = new TaxiDriverService();
+const driverService = new DriverService();
 
 /**
  * Registers all Socket.IO event handlers.
