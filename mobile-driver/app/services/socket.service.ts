@@ -2,7 +2,7 @@ import { SocketMessage, SocketEvent } from '../types';
 
 type EventHandler = (data: unknown) => void;
 
-const WS_URL = process.env.WS_URL ?? 'ws://localhost:3000';
+const SOCKET_URL = process.env.SOCKET_URL ?? process.env.WS_URL ?? 'ws://localhost:3000';
 
 class SocketService {
   private ws: WebSocket | null = null;
@@ -22,7 +22,7 @@ class SocketService {
   private openConnection(): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
 
-    this.ws = new WebSocket(`${WS_URL}?token=${this.accessToken ?? ''}`);
+    this.ws = new WebSocket(`${SOCKET_URL}?token=${this.accessToken ?? ''}`);
 
     this.ws.onopen = () => {
       console.log('[Socket] Connected');

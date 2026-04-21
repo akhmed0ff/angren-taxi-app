@@ -1,11 +1,16 @@
 import { Server as SocketIOServer } from 'socket.io';
 import * as http from 'http';
+import { env } from '../config/env';
 
 let io: SocketIOServer | null = null;
 
 export function initializeSocket(server: http.Server): SocketIOServer {
   io = new SocketIOServer(server, {
-    cors: { origin: '*', methods: ['GET', 'POST'] },
+    cors: {
+      origin: env.allowedOrigins.length > 0 ? env.allowedOrigins : false,
+      methods: ['GET', 'POST'],
+      credentials: true,
+    },
   });
   return io;
 }

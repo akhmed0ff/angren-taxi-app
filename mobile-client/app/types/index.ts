@@ -194,5 +194,6 @@ export type MainStackParamList = {
 
 export type RootStackParamList = {
   Splash: undefined;
+  Auth: undefined;
   Main: undefined;
 };
