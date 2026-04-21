@@ -30,13 +30,15 @@ export interface Vehicle {
 
 export interface User {
   id: string;
-  name: string;
-  email: string;
   phone: string;
+  name: string;
+  type: 'passenger' | 'driver';
+  language?: string;
+  created_at?: number;
+  email?: string;
   avatar?: string;
-  bonusBalance: number;
+  bonusBalance?: number;
   rating: number;
-  createdAt: string;
 }
 
 export interface Driver {

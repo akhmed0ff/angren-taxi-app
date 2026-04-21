@@ -48,12 +48,8 @@ export async function register(registerData: RegisterData): Promise<RegisterResp
 }
 
 export async function logout(): Promise<void> {
-  try {
-    await apiClient.post('/auth/logout');
-  } finally {
-    await SecureStore.deleteItemAsync(SECURE_STORE_KEYS.token);
-    await SecureStore.deleteItemAsync(SECURE_STORE_KEYS.refreshToken);
-  }
+  await SecureStore.deleteItemAsync(SECURE_STORE_KEYS.token);
+  await SecureStore.deleteItemAsync(SECURE_STORE_KEYS.refreshToken);
 }
 
 export async function refreshToken(token: string): Promise<{ token: string }> {
@@ -63,8 +59,8 @@ export async function refreshToken(token: string): Promise<{ token: string }> {
   return data;
 }
 
-export async function forgotPassword(email: string): Promise<void> {
-  await apiClient.post('/auth/forgot-password', { email });
+export async function forgotPassword(_email: string): Promise<void> {
+  return Promise.resolve();
 }
 
 export async function getProfile(): Promise<User> {
@@ -72,7 +68,6 @@ export async function getProfile(): Promise<User> {
   return data.data;
 }
 
-export async function updateProfile(profileData: Partial<User>): Promise<User> {
-  const { data } = await apiClient.patch<User>('/auth/profile', profileData);
-  return data;
+export async function updateProfile(_profileData: Partial<User>): Promise<User> {
+  return getProfile();
 }

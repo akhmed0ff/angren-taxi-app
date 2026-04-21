@@ -13,18 +13,44 @@ interface RegisterResponse {
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const { data } = await api.post<ApiResponse<LoginResponse>>('/auth/driver/login', credentials);
-    await saveTokens(data.data.tokens);
-    return data.data;
+    const { data } = await api.post<{ success: boolean; data: { user: User; token: string; refreshToken: string } }>(
+      '/auth/login',
+      { phone: (credentials as LoginCredentials & { phone?: string }).phone ?? credentials.login, password: credentials.password }
+    );
+    await saveTokens({
+      accessToken: data.data.token,
+      refreshToken: data.data.refreshToken,
+    });
+    return {
+      user: data.data.user,
+      tokens: {
+        accessToken: data.data.token,
+        refreshToken: data.data.refreshToken,
+      },
+    };
   },
 
   async register(registerData: RegisterData): Promise<RegisterResponse> {
-    const { data } = await api.post<ApiResponse<RegisterResponse>>(
-      '/auth/driver/register',
-      registerData,
+    const { data } = await api.post<{ success: boolean; data: { user: User; token: string; refreshToken: string } }>(
+      '/auth/register',
+      {
+        phone: registerData.phone,
+        name: `${registerData.firstName} ${registerData.lastName}`.trim(),
+        password: registerData.password,
+        type: 'driver',
+      }
     );
-    await saveTokens(data.data.tokens);
-    return data.data;
+    await saveTokens({
+      accessToken: data.data.token,
+      refreshToken: data.data.refreshToken,
+    });
+    return {
+      user: data.data.user,
+      tokens: {
+        accessToken: data.data.token,
+        refreshToken: data.data.refreshToken,
+      },
+    };
   },
 
   async logout(): Promise<void> {
@@ -36,7 +62,7 @@ export const authService = {
   },
 
   async getMe(): Promise<User> {
-    const { data } = await api.get<ApiResponse<User>>('/auth/me');
+    const { data } = await api.get<{ success: boolean; data: User }>('/auth/me');
     return data.data;
   },
 
