@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  PermissionsAndroid,
   Platform,
   View,
   StyleSheet,
@@ -9,7 +10,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
-import * as Location from 'expo-location';
+import Geolocation from '@react-native-community/geolocation';
 
 import { useTaxiStore } from '../../store/taxiStore';
 import { useRideStore } from '../../store/useRideStore';
@@ -21,6 +22,22 @@ const ANGREN_COORDS = {
   latitudeDelta: 0.05,
   longitudeDelta: 0.05,
 };
+
+async function requestLocationPermission(): Promise<boolean> {
+  if (Platform.OS === 'android') {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Разрешение на геолокацию',
+        message: 'Приложению нужен доступ к вашему местоположению',
+        buttonPositive: 'Разрешить',
+        buttonNegative: 'Отказать',
+      }
+    );
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
+  }
+  return true;
+}
 
 export const MainScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -37,8 +54,9 @@ export const MainScreen: React.FC = () => {
   const driverAnimationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Destination coords from active ride (convert lat/lng → latitude/longitude)
-  const destination = ride?.to
-    ? { latitude: ride.to.lat, longitude: ride.to.lng }
+  const rideTo = (ride as { to?: { lat?: number; lng?: number } } | null)?.to;
+  const destination = rideTo?.lat != null && rideTo?.lng != null
+    ? { latitude: rideTo.lat, longitude: rideTo.lng }
     : null;
 
   // Route polyline: user location → destination
@@ -137,8 +155,8 @@ export const MainScreen: React.FC = () => {
 
   const requestUserLocation = async () => {
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
+      const hasPermission = await requestLocationPermission();
+      if (!hasPermission) {
         console.log('Location permission denied');
         // Use fallback location (Angren center)
         setLocation(ANGREN_COORDS);
@@ -146,8 +164,12 @@ export const MainScreen: React.FC = () => {
         return;
       }
 
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
+      const location = await new Promise<any>((resolve, reject) => {
+        Geolocation.getCurrentPosition(
+          (position) => resolve(position),
+          (error) => reject(error),
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        );
       });
 
       const userCoords = {

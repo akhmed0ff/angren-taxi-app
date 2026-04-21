@@ -10,7 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useOrders } from '../../hooks/useOrders';
-import { useAppSelector } from '../../store/hooks';
+import { useDriverStore } from '../../store/useDriverStore';
 import { COLORS, FONTS, SPACING } from '../../utils/constants';
 import { Order } from '../../types';
 import AvailableOrderCard from '../../components/AvailableOrderCard';
@@ -20,7 +20,7 @@ import Header from '../../components/Header';
 const AvailableOrdersScreen: React.FC = () => {
   const { t } = useTranslation();
   const { availableOrders, isLoadingAvailable, isProcessing, loadAvailableOrders, acceptOrder, rejectOrder } = useOrders();
-  const isOnline = useAppSelector((state) => state.driver.isOnline);
+  const isOnline = useDriverStore((state) => state.isOnline);
 
   useEffect(() => {
     if (isOnline) {

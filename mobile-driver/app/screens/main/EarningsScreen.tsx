@@ -11,8 +11,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { setSummary, setLoading, addPayout } from '../../store/slices/earnings.slice';
+import { useEarningsStore } from '../../store/useEarningsStore';
 import { earningsService } from '../../services/earnings.service';
 import { COLORS, FONTS, SPACING, BORDER_RADIUS } from '../../utils/constants';
 import { formatCurrency, formatDate } from '../../utils/formatters';
@@ -22,23 +21,23 @@ import Button from '../../components/Button';
 
 const EarningsScreen: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
-  const { summary, isLoading, isRequestingPayout } = useAppSelector((state) => state.earnings);
+  const { summary, isLoading, isRequestingPayout, setSummary, setLoading, addPayout } =
+    useEarningsStore();
   const [period, setPeriod] = useState<'week' | 'month' | 'all'>('week');
   const [showPayoutModal, setShowPayoutModal] = useState(false);
   const [payoutAmount, setPayoutAmount] = useState('');
 
   const loadEarnings = useCallback(async () => {
-    dispatch(setLoading(true));
+    setLoading(true);
     try {
       const data = await earningsService.getEarnings(period);
-      dispatch(setSummary(data));
+      setSummary(data);
     } catch {
       // silent
     } finally {
-      dispatch(setLoading(false));
+      setLoading(false);
     }
-  }, [dispatch, period]);
+  }, [period, setLoading, setSummary]);
 
   useEffect(() => {
     void loadEarnings();
@@ -56,7 +55,7 @@ const EarningsScreen: React.FC = () => {
     }
     try {
       const payout = await earningsService.requestPayout(amount);
-      dispatch(addPayout(payout));
+      addPayout(payout);
       setShowPayoutModal(false);
       setPayoutAmount('');
       Alert.alert(t('common.success'), 'Запрос на выплату отправлен');

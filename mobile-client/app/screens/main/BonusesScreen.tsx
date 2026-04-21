@@ -4,21 +4,19 @@ import { useTranslation } from 'react-i18next';
 
 import { Header } from '../../components/Header';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchBonusBalanceThunk, fetchBonusHistoryThunk } from '../../store/slices/bonuses.slice';
+import { useBonusesStore } from '../../store/useBonusesStore';
 import { COLORS, BONUS_CASHBACK_PERCENT } from '../../utils/constants';
 import { formatDate, formatPrice } from '../../utils/formatters';
 import type { BonusTransaction } from '../../types';
 
 export const BonusesScreen: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
-  const { balance, history, isLoading } = useAppSelector((s) => s.bonuses);
+  const { balance, history, isLoading, fetchBalance, fetchHistory } = useBonusesStore();
 
   useEffect(() => {
-    dispatch(fetchBonusBalanceThunk());
-    dispatch(fetchBonusHistoryThunk(undefined));
-  }, [dispatch]);
+    void fetchBalance();
+    void fetchHistory();
+  }, [fetchBalance, fetchHistory]);
 
   const renderItem = ({ item }: { item: BonusTransaction }) => {
     const isEarned = item.type === 'earned';

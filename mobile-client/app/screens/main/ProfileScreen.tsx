@@ -15,29 +15,26 @@ import { Header } from '../../components/Header';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { useAuth } from '../../hooks/useAuth';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { setLanguage } from '../../store/slices/ui.slice';
+import { useUiStore } from '../../store/useUiStore';
 import { changeLanguage } from '../../i18n/i18n';
 import { COLORS } from '../../utils/constants';
 import { formatPhone } from '../../utils/formatters';
 import type { MainStackParamList, Language } from '../../types';
-import { updateProfileThunk } from '../../store/slices/auth.slice';
 
 type ProfileNavProp = StackNavigationProp<MainStackParamList>;
 
 export const ProfileScreen: React.FC = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<ProfileNavProp>();
-  const dispatch = useAppDispatch();
-  const { user, logout, isLoading } = useAuth();
-  const { language } = useAppSelector((s) => s.ui);
+  const { user, logout, isLoading, updateProfile } = useAuth();
+  const { language, setLanguage } = useUiStore();
 
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
 
   const handleSave = async () => {
-    await dispatch(updateProfileThunk({ name, email }));
+    await updateProfile({ name, email });
     setEditing(false);
   };
 
@@ -50,7 +47,7 @@ export const ProfileScreen: React.FC = () => {
 
   const toggleLanguage = async () => {
     const newLang: Language = language === 'ru' ? 'uz' : 'ru';
-    dispatch(setLanguage(newLang));
+    setLanguage(newLang);
     await changeLanguage(newLang);
   };
 

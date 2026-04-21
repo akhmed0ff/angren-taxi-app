@@ -12,8 +12,9 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { setOnlineStatus, setUpdatingStatus, setStats } from '../../store/slices/driver.slice';
+import { useDriverStore } from '../../store/useDriverStore';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useOrdersStore } from '../../store/useOrdersStore';
 import { driverService } from '../../services/driver.service';
 import { useLocation } from '../../hooks/useLocation';
 import { MainStackParamList } from '../../types';
@@ -27,34 +28,34 @@ type Nav = StackNavigationProp<MainStackParamList>;
 const DashboardScreen: React.FC = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<Nav>();
-  const dispatch = useAppDispatch();
-  const { isOnline, stats, isUpdatingStatus } = useAppSelector((state) => state.driver);
-  const { user } = useAppSelector((state) => state.auth);
-  const { activeOrder } = useAppSelector((state) => state.orders);
+  const { isOnline, stats, isUpdatingStatus, setStats, setOnlineStatus, setUpdatingStatus } =
+    useDriverStore();
+  const user = useAuthStore((state) => state.user);
+  const activeOrder = useOrdersStore((state) => state.activeOrder);
   useLocation();
 
   const loadStats = useCallback(async () => {
     try {
       const s = await driverService.getStats();
-      dispatch(setStats(s));
+      setStats(s);
     } catch {
       // silent fail
     }
-  }, [dispatch]);
+  }, [setStats]);
 
   useEffect(() => {
     void loadStats();
   }, [loadStats]);
 
   const handleToggleOnline = async (value: boolean) => {
-    dispatch(setUpdatingStatus(true));
+    setUpdatingStatus(true);
     try {
       const result = await driverService.toggleOnline(value);
-      dispatch(setOnlineStatus(result.isOnline));
+      setOnlineStatus(result.isOnline);
     } catch {
       Alert.alert(t('common.error'), t('errors.serverError'));
     } finally {
-      dispatch(setUpdatingStatus(false));
+      setUpdatingStatus(false);
     }
   };
 

@@ -2,7 +2,11 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthTokens } from '../types';
 
-const API_URL = process.env.API_URL ?? 'http://localhost:3000/api';
+declare const process:
+  | { env: Record<string, string | undefined> }
+  | undefined;
+
+const API_URL = process?.env?.API_URL ?? 'http://localhost:3000/api';
 
 const TOKEN_KEY = '@angren_driver:access_token';
 const REFRESH_TOKEN_KEY = '@angren_driver:refresh_token';

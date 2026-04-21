@@ -6,11 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import * as Location from 'expo-location';
+import Geolocation from '@react-native-community/geolocation';
 
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
@@ -18,21 +20,35 @@ import { Header } from '../../components/Header';
 import { PaymentMethodSelector } from '../../components/PaymentMethodSelector';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { useOrders } from '../../hooks/useOrders';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { setPaymentMethod } from '../../store/slices/payments.slice';
+import { usePaymentsStore } from '../../store/usePaymentsStore';
 import { calculatePrice } from '../../services/orders.service';
 import { COLORS, CAR_CLASSES } from '../../utils/constants';
 import { formatPrice, formatDuration, formatDistance } from '../../utils/formatters';
 import type { CarClass, PaymentMethod, Location as AppLocation, MainStackParamList } from '../../types';
+
+async function requestLocationPermission(): Promise<boolean> {
+  if (Platform.OS === 'android') {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Разрешение на геолокацию',
+        message: 'Приложению нужен доступ к вашему местоположению',
+        buttonPositive: 'Разрешить',
+        buttonNegative: 'Отказать',
+      }
+    );
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
+  }
+  return true;
+}
 
 type OrderCreateNavProp = StackNavigationProp<MainStackParamList, 'OrderCreate'>;
 
 export const OrderCreateScreen: React.FC = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<OrderCreateNavProp>();
-  const dispatch = useAppDispatch();
   const { createOrder, isLoading } = useOrders();
-  const { paymentMethod } = useAppSelector((s) => s.payments);
+  const { paymentMethod, setPaymentMethod } = usePaymentsStore();
 
   const [fromAddress, setFromAddress] = useState('');
   const [toAddress, setToAddress] = useState('');
@@ -43,16 +59,20 @@ export const OrderCreateScreen: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        const loc = await Location.getCurrentPositionAsync({});
-        const coords: AppLocation = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
-        setUserLocation(coords);
-        const geocode = await Location.reverseGeocodeAsync(loc.coords);
-        if (geocode[0]) {
-          setFromAddress(`${geocode[0].street ?? ''} ${geocode[0].streetNumber ?? ''}`.trim());
-        }
-      }
+      const hasPermission = await requestLocationPermission();
+      if (!hasPermission) return;
+
+      Geolocation.getCurrentPosition(
+        (position) => {
+          const coords: AppLocation = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+          setUserLocation(coords);
+        },
+        (error) => console.error('[Location]', error),
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      );
     })();
   }, []);
 
@@ -147,7 +167,7 @@ export const OrderCreateScreen: React.FC = () => {
         <Text style={styles.sectionTitle}>{t('payment.selectMethod')}</Text>
         <PaymentMethodSelector
           selected={paymentMethod}
-          onSelect={(m: PaymentMethod) => dispatch(setPaymentMethod(m))}
+          onSelect={(m: PaymentMethod) => setPaymentMethod(m)}
         />
 
         <Button

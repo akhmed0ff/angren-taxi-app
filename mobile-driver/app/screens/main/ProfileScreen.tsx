@@ -10,9 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppSelector } from '../../store/hooks';
-import { useAppDispatch } from '../../store/hooks';
-import { setStats } from '../../store/slices/driver.slice';
+import { useDriverStore } from '../../store/useDriverStore';
 import { driverService } from '../../services/driver.service';
 import { useAuth } from '../../hooks/useAuth';
 import { MainStackParamList } from '../../types';
@@ -27,18 +25,17 @@ type Nav = StackNavigationProp<MainStackParamList>;
 const ProfileScreen: React.FC = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<Nav>();
-  const dispatch = useAppDispatch();
   const { user, logout } = useAuth();
-  const { vehicle, stats, documentsStatus, isVerified } = useAppSelector((state) => state.driver);
+  const { vehicle, stats, documentsStatus, isVerified, setStats } = useDriverStore();
 
   const loadStats = useCallback(async () => {
     try {
       const s = await driverService.getStats();
-      dispatch(setStats(s));
+      setStats(s);
     } catch {
       // silent
     }
-  }, [dispatch]);
+  }, [setStats]);
 
   useEffect(() => {
     void loadStats();

@@ -122,9 +122,10 @@ function registerRideEvents(s: Socket): void {
     if (__DEV__) console.log('[Socket] ride:accepted', payload);
     subscribeToRide(payload.rideId);
     useRideStore.setState((state) => {
-      if (!state.ride || state.ride.id !== payload.rideId) return {};
+      const ride = state.ride as { id?: string } | null;
+      if (!ride || ride.id !== payload.rideId) return {};
       return {
-        ride: { ...state.ride, status: 'ACCEPTED', driverId: payload.driverId },
+        ride: { ...(state.ride as object), status: 'ACCEPTED', driverId: payload.driverId },
         status: 'ACCEPTED',
       };
     });
@@ -134,9 +135,10 @@ function registerRideEvents(s: Socket): void {
   s.on('ride:started', (payload: RideStartedPayload) => {
     if (__DEV__) console.log('[Socket] ride:started', payload);
     useRideStore.setState((state) => {
-      if (!state.ride || state.ride.id !== payload.rideId) return {};
+      const ride = state.ride as { id?: string } | null;
+      if (!ride || ride.id !== payload.rideId) return {};
       return {
-        ride: { ...state.ride, status: 'IN_PROGRESS' },
+        ride: { ...(state.ride as object), status: 'IN_PROGRESS' },
         status: 'IN_PROGRESS',
       };
     });
@@ -146,9 +148,10 @@ function registerRideEvents(s: Socket): void {
   s.on('ride:completed', (payload: RideCompletedPayload) => {
     if (__DEV__) console.log('[Socket] ride:completed', payload);
     useRideStore.setState((state) => {
-      if (!state.ride || state.ride.id !== payload.rideId) return {};
+      const ride = state.ride as { id?: string } | null;
+      if (!ride || ride.id !== payload.rideId) return {};
       return {
-        ride: { ...state.ride, status: 'COMPLETED', price: payload.price },
+        ride: { ...(state.ride as object), status: 'COMPLETED', price: payload.price },
         status: 'COMPLETED',
       };
     });

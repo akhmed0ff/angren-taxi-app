@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { restoreSessionThunk } from '../store/slices/auth.slice';
+import { useAuthStore } from '../store/useAuthStore';
 
 import { AuthNavigator } from './AuthNavigator';
 import { MainNavigator } from './MainNavigator';
@@ -11,14 +10,14 @@ import type { RootStackParamList } from '../types';
 const Stack = createStackNavigator<RootStackParamList>();
 
 export const RootNavigator: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { isAuthenticated, isLoading } = useAppSelector((s) => s.auth);
+  const { isAuthenticated, isLoading, restoreSession } = useAuthStore();
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    dispatch(restoreSessionThunk());
-  }, [dispatch]);
+    restoreSession().finally(() => setIsReady(true));
+  }, [restoreSession]);
 
-  if (isLoading) return <SplashScreen />;
+  if (!isReady || isLoading) return <SplashScreen />;
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>

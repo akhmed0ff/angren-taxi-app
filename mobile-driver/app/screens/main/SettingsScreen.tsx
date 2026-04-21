@@ -10,20 +10,25 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { setLanguage, setNotificationsEnabled, setSoundEnabled } from '../../store/slices/ui.slice';
+import { useUiStore } from '../../store/useUiStore';
 import { useAuth } from '../../hooks/useAuth';
 import { COLORS, FONTS, SPACING, BORDER_RADIUS } from '../../utils/constants';
 import Header from '../../components/Header';
 
 const SettingsScreen: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const dispatch = useAppDispatch();
-  const { language, notificationsEnabled, soundEnabled } = useAppSelector((state) => state.ui);
+  const {
+    language,
+    notificationsEnabled,
+    soundEnabled,
+    setLanguage,
+    setNotificationsEnabled,
+    setSoundEnabled,
+  } = useUiStore();
   const { logout } = useAuth();
 
   const handleLanguageChange = (lng: 'ru' | 'uz') => {
-    dispatch(setLanguage(lng));
+    setLanguage(lng);
     void i18n.changeLanguage(lng);
   };
 
@@ -63,12 +68,12 @@ const SettingsScreen: React.FC = () => {
           <SettingRow
             label={t('settings.notifications')}
             value={notificationsEnabled}
-            onToggle={(v) => dispatch(setNotificationsEnabled(v))}
+            onToggle={setNotificationsEnabled}
           />
           <SettingRow
             label={t('settings.sound')}
             value={soundEnabled}
-            onToggle={(v) => dispatch(setSoundEnabled(v))}
+            onToggle={setSoundEnabled}
           />
         </View>
 

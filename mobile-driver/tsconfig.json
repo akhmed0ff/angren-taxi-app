@@ -26,5 +26,5 @@
     "node_modules",
     "babel.config.js"
   ],
-  "extends": "expo/tsconfig.base"
+  "extends": "@react-native/typescript-config"
 }

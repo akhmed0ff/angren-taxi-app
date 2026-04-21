@@ -1,21 +1,4 @@
 {
-  "expo": {
-    "name": "Ангрен Такси",
-    "slug": "angren-taxi",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "userInterfaceStyle": "light",
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "uz.angren.taxi"
-    },
-    "android": {
-      "package": "uz.angren.taxi"
-    },
-    "plugins": [
-      "expo-location",
-      "expo-notifications",
-      "expo-secure-store"
-    ]
-  }
+  "name": "AngrenTaxi",
+  "displayName": "Ангрен Такси"
 }

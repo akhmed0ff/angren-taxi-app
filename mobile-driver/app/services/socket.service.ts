@@ -2,7 +2,11 @@ import { SocketMessage, SocketEvent } from '../types';
 
 type EventHandler = (data: unknown) => void;
 
-const SOCKET_URL = process.env.SOCKET_URL ?? process.env.WS_URL ?? 'ws://localhost:3000';
+declare const process:
+  | { env: Record<string, string | undefined> }
+  | undefined;
+
+const SOCKET_URL = process?.env?.SOCKET_URL ?? process?.env?.WS_URL ?? 'ws://localhost:3000';
 
 class SocketService {
   private ws: WebSocket | null = null;

@@ -12,7 +12,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useOrders } from '../../hooks/useOrders';
-import { useAppSelector } from '../../store/hooks';
+import { useDriverStore } from '../../store/useDriverStore';
 import { MainStackParamList } from '../../types';
 import { COLORS, FONTS, SPACING, BORDER_RADIUS } from '../../utils/constants';
 import { formatCurrency, formatDistance, formatDuration, formatPhone } from '../../utils/formatters';
@@ -28,7 +28,7 @@ const ActiveOrderScreen: React.FC = () => {
   const route = useRoute<RouteProps>();
   const { activeOrder, isProcessing, arriveAtPickup, startOrder, completeOrder, cancelOrder } =
     useOrders();
-  const driverLocation = useAppSelector((state) => state.driver.currentLocation);
+  const driverLocation = useDriverStore((state) => state.currentLocation);
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');

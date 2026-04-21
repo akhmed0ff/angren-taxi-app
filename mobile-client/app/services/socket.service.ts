@@ -43,7 +43,7 @@ class SocketService {
       if (__DEV__) console.log('[Socket] Connected');
     };
 
-    this.ws.onmessage = (event: MessageEvent) => {
+    this.ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data as string) as {
           type: string;

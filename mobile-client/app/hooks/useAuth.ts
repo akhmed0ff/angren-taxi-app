@@ -1,53 +1,24 @@
-import { useCallback } from 'react';
-import * as SecureStore from 'expo-secure-store';
-
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import {
-  loginThunk,
-  registerThunk,
-  logoutThunk,
-  clearError,
-} from '../store/slices/auth.slice';
+import { useAuthStore } from '../store/useAuthStore';
 import { socketService } from '../services/socket.service';
-import { SECURE_STORE_KEYS } from '../utils/constants';
-import type { RegisterData } from '../types';
 
 export function useAuth() {
-  const dispatch = useAppDispatch();
-  const { user, isAuthenticated, isLoading, error, token } = useAppSelector(
-    (state) => state.auth,
-  );
+  const store = useAuthStore();
 
-  const login = useCallback(
-    async (phone: string, password: string): Promise<void> => {
-      const result = await dispatch(loginThunk({ phone, password }));
-      if (loginThunk.fulfilled.match(result)) {
-        socketService.connect(result.payload.token);
-      }
-    },
-    [dispatch],
-  );
+  const loginWithSocket = async (phone: string, password: string) => {
+    await store.login(phone, password);
+    const token = useAuthStore.getState().token;
+    if (token) socketService.connect(token);
+  };
 
-  const register = useCallback(
-    async (data: RegisterData): Promise<void> => {
-      const result = await dispatch(registerThunk(data));
-      if (registerThunk.fulfilled.match(result)) {
-        socketService.connect(result.payload.token);
-      }
-    },
-    [dispatch],
-  );
-
-  const logout = useCallback(async (): Promise<void> => {
+  const logoutWithSocket = async () => {
     socketService.disconnect();
-    await dispatch(logoutThunk());
-    await SecureStore.deleteItemAsync(SECURE_STORE_KEYS.token);
-    await SecureStore.deleteItemAsync(SECURE_STORE_KEYS.refreshToken);
-  }, [dispatch]);
+    await store.logout();
+  };
 
-  const dismissError = useCallback(() => {
-    dispatch(clearError());
-  }, [dispatch]);
-
-  return { user, isAuthenticated, isLoading, error, token, login, register, logout, dismissError };
+  return {
+    ...store,
+    login: loginWithSocket,
+    logout: logoutWithSocket,
+    dismissError: store.clearError,
+  };
 }

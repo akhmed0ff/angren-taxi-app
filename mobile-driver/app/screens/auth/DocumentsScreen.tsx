@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import { AuthStackParamList } from '../../types';
 import { authService } from '../../services/auth.service';
 import { COLORS, FONTS, SPACING, BORDER_RADIUS } from '../../utils/constants';
@@ -43,14 +43,14 @@ const DocumentsScreen: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const pickImage = async (key: keyof DocState) => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
       quality: 0.8,
-      allowsEditing: true,
+      selectionLimit: 1,
     });
 
-    if (!result.canceled && result.assets[0]) {
-      setDocs((prev) => ({ ...prev, [key]: result.assets[0].uri }));
+    if (result.assets?.[0]?.uri) {
+      setDocs((prev) => ({ ...prev, [key]: result.assets![0].uri ?? null }));
     }
   };
 

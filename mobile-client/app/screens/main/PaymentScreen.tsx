@@ -7,9 +7,7 @@ import { RouteProp } from '@react-navigation/native';
 import { Header } from '../../components/Header';
 import { Button } from '../../components/Button';
 import { PaymentMethodSelector } from '../../components/PaymentMethodSelector';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { setPaymentMethod } from '../../store/slices/payments.slice';
-import { processPaymentThunk } from '../../store/slices/payments.slice';
+import { usePaymentsStore } from '../../store/usePaymentsStore';
 import { formatPrice } from '../../utils/formatters';
 import { COLORS } from '../../utils/constants';
 import type { MainStackParamList, PaymentMethod } from '../../types';
@@ -24,20 +22,17 @@ interface Props {
 
 export const PaymentScreen: React.FC<Props> = ({ navigation, route }) => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const { orderId, amount } = route.params;
-  const { paymentMethod, isLoading } = useAppSelector((s) => s.payments);
+  const { paymentMethod, isLoading, setPaymentMethod, processPayment } = usePaymentsStore();
 
   const handlePayment = async () => {
-    const result = await dispatch(
-      processPaymentThunk({ orderId, method: paymentMethod, amount }),
-    );
-    if (processPaymentThunk.fulfilled.match(result)) {
+    try {
+      await processPayment(orderId, amount);
       Alert.alert('✅', t('payment.paymentSuccess'), [
         { text: t('common.ok'), onPress: () => navigation.goBack() },
       ]);
-    } else {
-      Alert.alert(t('common.error'), result.payload as string);
+    } catch (e) {
+      Alert.alert(t('common.error'), (e as Error).message);
     }
   };
 
@@ -54,7 +49,7 @@ export const PaymentScreen: React.FC<Props> = ({ navigation, route }) => {
         <Text style={styles.sectionTitle}>{t('payment.selectMethod')}</Text>
         <PaymentMethodSelector
           selected={paymentMethod}
-          onSelect={(m: PaymentMethod) => dispatch(setPaymentMethod(m))}
+          onSelect={(m: PaymentMethod) => setPaymentMethod(m)}
         />
 
         <Button

@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
-import { Provider } from 'react-redux';
+import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
 
-import { store } from './store/store';
 import { RootNavigator } from './navigation/RootNavigator';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { initI18n } from './i18n/i18n';
@@ -17,7 +15,7 @@ function AppContent(): React.JSX.Element {
 
   return (
     <NavigationContainer>
-      <StatusBar style="auto" />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <RootNavigator />
     </NavigationContainer>
   );
@@ -26,9 +24,7 @@ function AppContent(): React.JSX.Element {
 export default function App(): React.JSX.Element {
   return (
     <ErrorBoundary>
-      <Provider store={store}>
-        <AppContent />
-      </Provider>
+      <AppContent />
     </ErrorBoundary>
   );
 }

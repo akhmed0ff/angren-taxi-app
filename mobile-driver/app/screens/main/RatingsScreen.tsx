@@ -8,8 +8,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { setSummary, appendReviews, setLoading } from '../../store/slices/ratings.slice';
+import { useRatingsStore } from '../../store/useRatingsStore';
 import { ratingsService } from '../../services/ratings.service';
 import { Review } from '../../types';
 import { COLORS, FONTS, SPACING, BORDER_RADIUS } from '../../utils/constants';
@@ -21,32 +20,31 @@ const STARS = [5, 4, 3, 2, 1] as const;
 
 const RatingsScreen: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
-  const { summary, isLoading } = useAppSelector((state) => state.ratings);
+  const { summary, isLoading, setSummary, appendReviews, setLoading } = useRatingsStore();
   const [page, setPage] = React.useState(1);
 
   const loadRatings = useCallback(async () => {
-    dispatch(setLoading(true));
+    setLoading(true);
     try {
       const data = await ratingsService.getRatings();
-      dispatch(setSummary(data));
+      setSummary(data);
       setPage(1);
     } catch {
       // silent
     } finally {
-      dispatch(setLoading(false));
+      setLoading(false);
     }
-  }, [dispatch]);
+  }, [setLoading, setSummary]);
 
   const loadMoreReviews = useCallback(async () => {
     try {
       const reviews = await ratingsService.getReviews(page + 1);
-      dispatch(appendReviews(reviews));
+      appendReviews(reviews);
       setPage((p) => p + 1);
     } catch {
       // silent
     }
-  }, [dispatch, page]);
+  }, [appendReviews, page]);
 
   useEffect(() => {
     void loadRatings();

@@ -6,8 +6,8 @@
 |---|---|---|
 | `backend/` | Node.js · Express · TypeScript · SQLite (better-sqlite3) · Socket.IO | Express 4, TS 5 |
 | `admin/` | Next.js · Ant Design · Redux Toolkit · Recharts | Next.js 15, React 18 |
-| `mobile-client/` | Expo · React Native · React Navigation · Redux Toolkit | Expo SDK 54, RN 0.81 |
-| `mobile-driver/` | Expo · React Native · React Navigation · Redux Toolkit | Expo SDK 54, RN 0.81 |
+| `mobile-client/` | React Native CLI · React Navigation · Zustand | RN 0.76, React 18 |
+| `mobile-driver/` | React Native CLI · React Navigation · Zustand | RN 0.76, React 18 |
 
 ## Структура проекта
 
@@ -15,8 +15,8 @@
 angren-taxi-app/
 ├── backend/         # REST API + WebSocket сервер (порт 3000)
 ├── admin/           # Веб-панель администратора (Next.js, порт 3001)
-├── mobile-client/   # Мобильное приложение пассажира (Expo, порт 8081)
-├── mobile-driver/   # Мобильное приложение водителя (Expo, порт 8082)
+├── mobile-client/   # Мобильное приложение пассажира (React Native)
+├── mobile-driver/   # Мобильное приложение водителя (React Native)
 ├── docker-compose.yml
 └── README.md
 ```
@@ -59,25 +59,42 @@ npm install
 npm run dev        # http://localhost:3001
 ```
 
-### 3) Mobile client (пассажир)
+### 3) Mobile (React Native Android)
+
+Предварительные требования для Android:
+
+- JDK 17 (команда `java -version` должна работать)
+- Android SDK Platform-Tools (команда `adb version` должна работать)
+- Android SDK в `local.properties`, например:
+
+```properties
+sdk.dir=C:\\Users\\<user>\\AppData\\Local\\Android\\Sdk
+```
+
+Важно:
+
+- В Android Studio открывайте проект из папки `mobile-client/android` или `mobile-driver/android`
+- Не открывайте служебную папку `android/gradle` как отдельный проект
+
+### 3.1) Mobile client (пассажир)
 
 ```bash
 cd mobile-client
 npm install
-npx expo start --host lan --port 8081
+npm start
+# в отдельном терминале
+npm run android
 ```
 
-Откройте `exp://<LAN-IP>:8081` в приложении **Expo Go** на телефоне.
-
-### 4) Mobile driver (водитель)
+### 3.2) Mobile driver (водитель)
 
 ```bash
 cd mobile-driver
 npm install
-CI=1 npx expo start --host lan --port 8082   # CI=1 отключает интерактивный prompt
+npm start
+# в отдельном терминале
+npm run android
 ```
-
-Откройте `exp://<LAN-IP>:8082` в приложении **Expo Go** на телефоне.
 
 ### Docker (backend)
 

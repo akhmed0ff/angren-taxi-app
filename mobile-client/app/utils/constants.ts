@@ -1,8 +1,12 @@
+declare const process:
+  | { env: Record<string, string | undefined> }
+  | undefined;
+
 export const API_BASE_URL =
-  (process.env['API_BASE_URL'] as string | undefined) ?? 'http://localhost:3000/api';
+  (process?.env?.['API_BASE_URL'] as string | undefined) ?? 'http://localhost:3000/api';
 
 export const SOCKET_URL =
-  (process.env['SOCKET_URL'] as string | undefined) ?? 'ws://localhost:3000';
+  (process?.env?.['SOCKET_URL'] as string | undefined) ?? 'ws://localhost:3000';
 
 export const CAR_CLASSES = {
   economy: { label: 'Эконом', multiplier: 1, icon: '🚗' },

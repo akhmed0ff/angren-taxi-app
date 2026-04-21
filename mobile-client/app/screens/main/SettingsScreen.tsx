@@ -13,8 +13,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 
 import { Header } from '../../components/Header';
 import { Button } from '../../components/Button';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { setLanguage } from '../../store/slices/ui.slice';
+import { useUiStore } from '../../store/useUiStore';
 import { changeLanguage } from '../../i18n/i18n';
 import { COLORS } from '../../utils/constants';
 import type { MainStackParamList, Language } from '../../types';
@@ -24,14 +23,13 @@ type SettingsNavProp = StackNavigationProp<MainStackParamList>;
 export const SettingsScreen: React.FC = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<SettingsNavProp>();
-  const dispatch = useAppDispatch();
-  const { language } = useAppSelector((s) => s.ui);
+  const { language, setLanguage } = useUiStore();
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   const toggleLanguage = async () => {
     const newLang: Language = language === 'ru' ? 'uz' : 'ru';
-    dispatch(setLanguage(newLang));
+    setLanguage(newLang);
     await changeLanguage(newLang);
   };
 
