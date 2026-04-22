@@ -1,6 +1,9 @@
 import { Driver, DriverWithUser } from '../models/driver.model';
 import { locationCache } from './location-cache.service';
+import { userRepository } from '../repositories/user.repository';
 import { driverRepository } from '../repositories/driver.repository';
+import { orderRepository } from '../repositories/order.repository';
+import { refreshTokenRepository } from '../repositories/refresh-token.repository';
 
 export class DriverService {
   getDriver(userId: string): Driver | null {

@@ -3,7 +3,6 @@ import { create } from 'zustand';
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type TariffType = 'standard' | 'comfort' | 'delivery';
-export type PaymentMethodType = 'cash' | 'card';
 export type OrderStatusType =
   | 'idle'
   | 'searching'
@@ -27,7 +26,6 @@ export interface TaxiAppState {
 
   // Order preferences
   tariff: TariffType;
-  paymentMethod: PaymentMethodType;
   baggage: boolean;
   airConditioner: boolean;
   bonusBalance: number;
@@ -39,7 +37,6 @@ export interface TaxiAppState {
   setLocation: (location: Location) => void;
   setRoute: (from: string, to: string) => void;
   setTariff: (tariff: TariffType) => void;
-  setPayment: (method: PaymentMethodType) => void;
   setBaggage: (enabled: boolean) => void;
   setAirConditioner: (enabled: boolean) => void;
   setBonusBalance: (amount: number) => void;
@@ -57,7 +54,6 @@ const initialState = {
   from: '',
   to: '',
   tariff: 'standard' as TariffType,
-  paymentMethod: 'cash' as PaymentMethodType,
   baggage: false,
   airConditioner: false,
   bonusBalance: 0,
@@ -75,9 +71,6 @@ export const useTaxiStore = create<TaxiAppState>((set) => ({
 
   setTariff: (tariff: TariffType) =>
     set({ tariff }),
-
-  setPayment: (method: PaymentMethodType) =>
-    set({ paymentMethod: method }),
 
   setBaggage: (enabled: boolean) =>
     set({ baggage: enabled }),

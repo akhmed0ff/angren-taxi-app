@@ -3,7 +3,7 @@ export interface Order {
   passenger_id: string;
   driver_id: string | null;
   vehicle_id: string | null;
-  status: 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'pending' | 'accepted' | 'arrived' | 'in_progress' | 'completed' | 'cancelled';
   category: 'economy' | 'comfort' | 'premium';
   from_address: string;
   from_latitude: number;

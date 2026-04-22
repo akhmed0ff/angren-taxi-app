@@ -12,7 +12,7 @@ export type OrderStatus =
   | 'pending'
   | 'accepted'
   | 'arrived'
-  | 'inProgress'
+  | 'in_progress'
   | 'completed'
   | 'cancelled';
 export type DriverStatus = 'available' | 'busy' | 'offline';
@@ -38,7 +38,7 @@ export interface User {
   email?: string;
   avatar?: string;
   bonusBalance?: number;
-  rating: number;
+  rating?: number;
 }
 
 export interface Driver {
@@ -61,12 +61,20 @@ export interface Order {
   from: Location;
   to: Location;
   carClass: CarClass;
+  category?: CarClass;
   price: number;
   distance: number;
   duration: number;
   paymentMethod: PaymentMethod;
   createdAt: string;
   updatedAt: string;
+  // Backend flat fields
+  from_address?: string;
+  from_latitude?: number;
+  from_longitude?: number;
+  to_address?: string;
+  to_latitude?: number;
+  to_longitude?: number;
 }
 
 export interface Payment {
@@ -110,55 +118,6 @@ export interface PriceEstimate {
   duration: number;
 }
 
-// ─── Redux state slices ───────────────────────────────────────────────────────
-
-export interface AuthState {
-  user: User | null;
-  token: string | null;
-  refreshToken: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-}
-
-export interface OrdersState {
-  currentOrder: Order | null;
-  orderHistory: Order[];
-  total: number;
-  page: number;
-  isLoading: boolean;
-  error: string | null;
-}
-
-export interface DriversState {
-  availableDrivers: Driver[];
-  selectedDriver: Driver | null;
-  isLoading: boolean;
-  error: string | null;
-}
-
-export interface BonusesState {
-  balance: number;
-  history: BonusTransaction[];
-  total: number;
-  isLoading: boolean;
-  error: string | null;
-}
-
-export interface PaymentsState {
-  paymentMethod: PaymentMethod;
-  history: Payment[];
-  isLoading: boolean;
-  error: string | null;
-}
-
-export interface UIState {
-  isLoading: boolean;
-  error: string | null;
-  language: Language;
-  theme: Theme;
-}
-
 export interface RideState {
   activeRideId: string | null;
   status: string | null;
@@ -195,7 +154,6 @@ export type MainStackParamList = {
 };
 
 export type RootStackParamList = {
-  Splash: undefined;
   Auth: undefined;
   Main: undefined;
 };

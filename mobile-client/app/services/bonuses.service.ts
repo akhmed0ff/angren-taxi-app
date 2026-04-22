@@ -12,8 +12,8 @@ interface BonusHistoryResponse {
 }
 
 export async function getBonusBalance(): Promise<number> {
-  const { data } = await apiClient.get<{ balance: number }>('/bonuses/balance');
-  return data.balance;
+  const { data: resp } = await apiClient.get<{ success: boolean; data: { balance: number; history: BonusTransaction[] } }>('/bonuses/my-balance');
+  return resp.data.balance;
 }
 
 export async function getBonusHistory(params?: BonusHistoryParams): Promise<BonusHistoryResponse> {

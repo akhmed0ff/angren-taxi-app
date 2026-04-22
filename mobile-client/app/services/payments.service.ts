@@ -4,10 +4,10 @@ import type { Payment, PaymentMethod } from '../types';
 export async function processPayment(
   orderId: string,
   method: PaymentMethod,
-  amount: number,
+  amount?: number,
 ): Promise<Payment> {
-  const { data } = await apiClient.post<Payment>('/payments', { orderId, method, amount });
-  return data;
+  const { data: resp } = await apiClient.post<{ success: boolean; data: Payment }>('/payments/process', { orderId, method });
+  return resp.data;
 }
 
 export async function getPaymentHistory(): Promise<Payment[]> {

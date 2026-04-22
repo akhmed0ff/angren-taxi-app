@@ -1,6 +1,5 @@
 import { getIo } from '../infrastructure/socket';
-import { DriverService } from '../modules/driver/driver.service';
-import type { RideWithRelations } from '../modules/rides/ride.types';
+import { DriverService } from '../services/driver.service';
 
 // ---------------------------------------------------------------------------
 // Payload types
@@ -21,7 +20,10 @@ export interface RideStatusPayload {
 }
 
 export interface RideCreatedPayload {
-  ride: RideWithRelations;
+  ride: {
+    id: string;
+    userId: string;
+  };
 }
 
 export interface RideAcceptedPayload {

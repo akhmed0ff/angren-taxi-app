@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { authService } from '../services/auth.service';
+import { refreshTokenRepository } from '../repositories/refresh-token.repository';
 import { isValidUserType, isValidName, isValidPassword } from '../utils/validators';
 
 export class AuthController {
@@ -114,6 +115,22 @@ export class AuthController {
       return;
     }
     res.json({ success: true, data: user });
+  }
+
+  logout(req: AuthRequest, res: Response, next: NextFunction): void {
+    try {
+      const { refreshToken } = req.body as { refreshToken?: string };
+
+      if (!refreshToken) {
+        res.status(400).json({ success: false, message: req.t?.('validation.required') });
+        return;
+      }
+
+      refreshTokenRepository.deleteByToken(refreshToken);
+      res.json({ success: true, message: 'Logged out' });
+    } catch (err) {
+      next(err);
+    }
   }
 }
 

@@ -91,14 +91,14 @@ api.interceptors.response.use(
         const tokens = await loadTokens();
         if (!tokens?.refreshToken) throw new Error('No refresh token');
 
-        const { data } = await axios.post<{ data: AuthTokens }>(`${API_URL}/auth/refresh`, {
+        const { data } = await axios.post<{ success: boolean; data: { user: unknown; token: string; refreshToken: string } }>(`${API_URL}/auth/refresh`, {
           refreshToken: tokens.refreshToken,
         });
 
-        await saveTokens(data.data);
-        processQueue(null, data.data.accessToken);
+        await saveTokens({ accessToken: data.data.token, refreshToken: data.data.refreshToken });
+        processQueue(null, data.data.token);
 
-        originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${data.data.token}`;
         return api(originalRequest);
       } catch (err) {
         processQueue(err, null);

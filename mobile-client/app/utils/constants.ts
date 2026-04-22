@@ -34,7 +34,7 @@ export const ORDER_STATUS_COLORS: Record<string, string> = {
   pending: '#fbbc05',
   accepted: '#1a73e8',
   arrived: '#9c27b0',
-  inProgress: '#34a853',
+  in_progress: '#34a853',
   completed: '#34a853',
   cancelled: '#ea4335',
 };

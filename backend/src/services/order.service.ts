@@ -1,6 +1,11 @@
 import { Order, CreateOrderInput } from '../models/order.model';
 import { haversineDistance } from '../utils/distance';
+import { getDb } from '../db/db.provider';
+import { userRepository } from '../repositories/user.repository';
+import { driverRepository } from '../repositories/driver.repository';
 import { orderRepository } from '../repositories/order.repository';
+import { refreshTokenRepository } from '../repositories/refresh-token.repository';
+import { v4 as uuidv4 } from 'uuid';
 
 const PRICE_PER_KM: Record<string, number> = {
   economy: 1500,
@@ -23,7 +28,7 @@ function estimatePrice(category: string, fromLat: number, fromLon: number, toLat
 
 export class OrderService {
   createOrder(passengerId: string, input: CreateOrderInput): Order {
-    const activeOrder = orderRepository.findPendingByPassenger(passengerId);
+    const activeOrder = orderRepository.findActiveByPassenger(passengerId);
 
     if (activeOrder) {
       throw new Error('ALREADY_ACTIVE_ORDER');
@@ -75,10 +80,10 @@ export class OrderService {
   }
 
   acceptOrder(orderId: string, driverId: string, vehicleId: string): Order {
-    orderRepository.transaction(() => {
+    getDb().transaction(() => {
       // Проверяем статус водителя внутри транзакции, чтобы исключить TOCTOU:
       // водитель не должен успеть стать offline/busy между проверкой в контроллере и этим UPDATE.
-      const driver = orderRepository.findDriverStatus(driverId);
+      const driver = driverRepository.findById(driverId);
 
       if (!driver) {
         throw new Error('DRIVER_NOT_FOUND');
@@ -93,14 +98,30 @@ export class OrderService {
 
       // Атомарно переводим водителя в busy внутри той же транзакции,
       // чтобы исключить race condition между принятием заказа и сменой статуса.
-      orderRepository.setDriverBusy(driverId);
+      driverRepository.setStatusById(driverId, 'busy');
 
       const acceptedOrder = orderRepository.findById(orderId);
       if (!acceptedOrder) {
         throw new Error('ORDER_NOT_AVAILABLE');
       }
 
-      orderRepository.insertHistory(acceptedOrder, acceptedOrder.status);
+      getDb().execute(
+        `INSERT INTO order_history (id, order_id, passenger_id, driver_id, from_address,
+         to_address, category, final_price, payment_method, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          uuidv4(),
+          acceptedOrder.id,
+          acceptedOrder.passenger_id,
+          acceptedOrder.driver_id,
+          acceptedOrder.from_address,
+          acceptedOrder.to_address,
+          acceptedOrder.category,
+          acceptedOrder.final_price,
+          acceptedOrder.payment_method,
+          acceptedOrder.status,
+        ]
+      );
     });
 
     return this.getOrderById(orderId) as Order;
@@ -114,10 +135,153 @@ export class OrderService {
     const order = orderRepository.updateStatus(orderId, status, finalPrice);
 
     if (status === 'completed') {
-      orderRepository.insertHistory(order, status);
+      getDb().execute(
+        `INSERT INTO order_history (id, order_id, passenger_id, driver_id, from_address,
+         to_address, category, final_price, payment_method, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          uuidv4(),
+          order.id,
+          order.passenger_id,
+          order.driver_id,
+          order.from_address,
+          order.to_address,
+          order.category,
+          order.final_price,
+          order.payment_method,
+          status,
+        ]
+      );
     }
 
     return order;
+  }
+
+  rejectOrder(orderId: string, driverId: string): Order {
+    const order = orderRepository.findById(orderId);
+    if (!order) {
+      throw new Error('ORDER_NOT_FOUND');
+    }
+    if (order.driver_id !== driverId) {
+      throw new Error('ORDER_ACCESS_DENIED');
+    }
+    if (order.status !== 'accepted') {
+      throw new Error('INVALID_STATUS_TRANSITION');
+    }
+
+    if (!orderRepository.reject(orderId, driverId)) {
+      throw new Error('FAILED_TO_REJECT_ORDER');
+    }
+
+    // Возвращаем водителя в online статус
+    driverRepository.setStatusById(driverId, 'online');
+
+    return this.getOrderById(orderId) as Order;
+  }
+
+  arriveAtPickup(orderId: string, driverId: string): Order {
+    const order = orderRepository.findById(orderId);
+    if (!order) {
+      throw new Error('ORDER_NOT_FOUND');
+    }
+    if (order.driver_id !== driverId) {
+      throw new Error('ORDER_ACCESS_DENIED');
+    }
+    if (order.status !== 'accepted') {
+      throw new Error('INVALID_STATUS_TRANSITION');
+    }
+
+    if (!orderRepository.arrivedAtPickup(orderId, driverId)) {
+      throw new Error('FAILED_TO_ARRIVE');
+    }
+
+    return this.getOrderById(orderId) as Order;
+  }
+
+  startOrder(orderId: string, driverId: string): Order {
+    const order = orderRepository.findById(orderId);
+    if (!order) {
+      throw new Error('ORDER_NOT_FOUND');
+    }
+    if (order.driver_id !== driverId) {
+      throw new Error('ORDER_ACCESS_DENIED');
+    }
+    if (order.status !== 'arrived') {
+      throw new Error('INVALID_STATUS_TRANSITION');
+    }
+
+    if (!orderRepository.startRide(orderId, driverId)) {
+      throw new Error('FAILED_TO_START_ORDER');
+    }
+
+    return this.getOrderById(orderId) as Order;
+  }
+
+  completeOrder(orderId: string, driverId: string, finalPrice?: number): Order {
+    const order = orderRepository.findById(orderId);
+    if (!order) {
+      throw new Error('ORDER_NOT_FOUND');
+    }
+    if (order.driver_id !== driverId) {
+      throw new Error('ORDER_ACCESS_DENIED');
+    }
+    if (order.status !== 'in_progress') {
+      throw new Error('INVALID_STATUS_TRANSITION');
+    }
+
+    if (!orderRepository.completeRide(orderId, driverId, finalPrice)) {
+      throw new Error('FAILED_TO_COMPLETE_ORDER');
+    }
+
+    // Возвращаем водителя в online статус
+    driverRepository.setStatusById(driverId, 'online');
+
+    const completedOrder = this.getOrderById(orderId) as Order;
+
+    // Логируем завершение в order_history
+    getDb().execute(
+      `INSERT INTO order_history (id, order_id, passenger_id, driver_id, from_address,
+       to_address, category, final_price, payment_method, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        uuidv4(),
+        completedOrder.id,
+        completedOrder.passenger_id,
+        completedOrder.driver_id,
+        completedOrder.from_address,
+        completedOrder.to_address,
+        completedOrder.category,
+        completedOrder.final_price,
+        completedOrder.payment_method,
+        'completed',
+      ]
+    );
+
+    return completedOrder;
+  }
+
+  getActiveOrder(userId: string): Order | null {
+    const driver = driverRepository.findByUserId(userId);
+    if (!driver) {
+      return null;
+    }
+    return orderRepository.findActiveByDriver(driver.id) ?? null;
+  }
+
+  getOrderHistory(
+    userId: string,
+    params: { page?: number; limit?: number; status?: string }
+  ): { orders: Order[]; total: number } {
+    const driver = driverRepository.findByUserId(userId);
+    if (!driver) {
+      return { orders: [], total: 0 };
+    }
+
+    const page = Math.max(1, params.page ?? 1);
+    const limit = Math.min(100, Math.max(1, params.limit ?? 20));
+    const offset = (page - 1) * limit;
+
+    return orderRepository.findByDriver(driver.id, limit, offset, params.status);
   }
 }
 

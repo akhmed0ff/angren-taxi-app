@@ -1,18 +1,46 @@
 import { BaseRepository } from '../db/base.repository';
-import { Driver, DriverWithUser } from '../models/driver.model';
+import { v4 as uuidv4 } from 'uuid';
+import { DbRow } from '../db/db.interface';
+
+export interface DriverRow extends DbRow {
+  id: string;
+  user_id: string;
+  status: 'online' | 'offline' | 'busy';
+  latitude: number | null;
+  longitude: number | null;
+  rating: number;
+  total_rides: number;
+  balance: number;
+  prepaid_balance: number;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface DriverWithUserRow extends DriverRow {
+  phone: string;
+  name: string;
+}
 
 export class DriverRepository extends BaseRepository {
-  findByUserId(userId: string): Driver | undefined {
-    return this.db.queryOne<Driver>('SELECT * FROM drivers WHERE user_id = ?', [userId]);
+  create(userId: string): void {
+    this.db.execute('INSERT INTO drivers (id, user_id) VALUES (?, ?)', [uuidv4(), userId]);
   }
 
-  findById(id: string): Driver | undefined {
-    return this.db.queryOne<Driver>('SELECT * FROM drivers WHERE id = ?', [id]);
+  findByUserId(userId: string): DriverRow | undefined {
+    return this.db.queryOne<DriverRow>(
+      'SELECT * FROM drivers WHERE user_id = ?', [userId]
+    );
   }
 
-  findOnline(category?: string): DriverWithUser[] {
+  findById(id: string): DriverRow | undefined {
+    return this.db.queryOne<DriverRow>(
+      'SELECT * FROM drivers WHERE id = ?', [id]
+    );
+  }
+
+  findOnline(category?: string): DriverWithUserRow[] {
     if (category) {
-      return this.db.query<DriverWithUser>(
+      return this.db.query<DriverWithUserRow>(
         `SELECT d.*, u.phone, u.name FROM drivers d
          JOIN users u ON d.user_id = u.id
          JOIN vehicles v ON v.driver_id = d.id
@@ -21,7 +49,7 @@ export class DriverRepository extends BaseRepository {
       );
     }
 
-    return this.db.query<DriverWithUser>(
+    return this.db.query<DriverWithUserRow>(
       `SELECT d.*, u.phone, u.name FROM drivers d
        JOIN users u ON d.user_id = u.id WHERE d.status = 'online'`
     );
@@ -29,15 +57,22 @@ export class DriverRepository extends BaseRepository {
 
   setStatus(userId: string, status: 'online' | 'offline' | 'busy'): void {
     this.db.execute(
-      `UPDATE drivers SET status = ?, updated_at = strftime('%s', 'now') WHERE user_id = ?`,
+      `UPDATE drivers SET status = ?, updated_at = strftime('%s','now') WHERE user_id = ?`,
       [status, userId]
+    );
+  }
+
+  setStatusById(driverId: string, status: 'online' | 'offline' | 'busy'): void {
+    this.db.execute(
+      `UPDATE drivers SET status = ?, updated_at = strftime('%s','now') WHERE id = ?`,
+      [status, driverId]
     );
   }
 
   updateLocation(userId: string, latitude: number, longitude: number): void {
     this.db.execute(
       `UPDATE drivers SET latitude = ?, longitude = ?,
-       updated_at = strftime('%s', 'now') WHERE user_id = ?`,
+       updated_at = strftime('%s','now') WHERE user_id = ?`,
       [latitude, longitude, userId]
     );
   }

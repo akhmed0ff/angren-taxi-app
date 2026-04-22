@@ -12,3 +12,14 @@ admin/tsconfig.tsbuildinfo
 *.log
 .DS_Store
 node_modules/
+
+# Android/iOS build artifacts (нативный код хранится в репозитории)
+*.apk
+*.aab
+*.ipa
+mobile-client/android/.gradle/
+mobile-client/android/build/
+mobile-client/android/app/build/
+mobile-driver/android/.gradle/
+mobile-driver/android/build/
+mobile-driver/android/app/build/

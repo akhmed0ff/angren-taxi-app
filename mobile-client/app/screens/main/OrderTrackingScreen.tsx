@@ -112,7 +112,7 @@ export const OrderTrackingScreen: React.FC<Props> = ({ navigation, route }) => {
     pending: t('order.status.pending'),
     accepted: t('order.status.accepted'),
     arrived: t('order.status.arrived'),
-    inProgress: t('tracking.tripInProgress'),
+    in_progress: t('tracking.tripInProgress'),
     completed: t('order.status.completed'),
     cancelled: t('order.status.cancelled'),
   };

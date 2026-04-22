@@ -5,26 +5,26 @@ import {
   Text,
   StyleSheet,
   Modal,
-  Animated,
 } from 'react-native';
 
-import { useTaxiStore, PaymentMethodType } from '../store/taxiStore';
+import { usePaymentsStore } from '../store/usePaymentsStore';
+import type { PaymentMethod } from '../types';
 
 interface PaymentMethodSheetProps {
   isVisible: boolean;
   onClose: () => void;
-  onConfirm?: (method: PaymentMethodType) => void;
+  onConfirm?: (method: PaymentMethod) => void;
 }
 
 const PAYMENT_METHODS = [
   {
-    id: 'cash' as PaymentMethodType,
+    id: 'cash' as PaymentMethod,
     name: 'Наличные',
     icon: '💵',
     description: 'Оплата при прибытии',
   },
   {
-    id: 'card' as PaymentMethodType,
+    id: 'card' as PaymentMethod,
     name: 'Карта',
     icon: '💳',
     description: 'Безопасная оплата',
@@ -36,17 +36,17 @@ export const PaymentMethodSheet: React.FC<PaymentMethodSheetProps> = ({
   onClose,
   onConfirm,
 }) => {
-  const { paymentMethod, setPayment } = useTaxiStore();
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethodType>(
+  const { paymentMethod, setPaymentMethod } = usePaymentsStore();
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(
     paymentMethod,
   );
 
-  const handleSelectMethod = (method: PaymentMethodType) => {
+  const handleSelectMethod = (method: PaymentMethod) => {
     setSelectedMethod(method);
   };
 
   const handleConfirm = () => {
-    setPayment(selectedMethod);
+    setPaymentMethod(selectedMethod);
     onConfirm?.(selectedMethod);
     onClose();
   };

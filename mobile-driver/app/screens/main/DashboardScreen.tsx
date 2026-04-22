@@ -63,7 +63,7 @@ const DashboardScreen: React.FC = () => {
     <SafeAreaView style={styles.safe}>
       <View style={styles.headerBar}>
         <View>
-          <Text style={styles.greeting}>Привет, {user?.firstName}! 👋</Text>
+          <Text style={styles.greeting}>Привет, {user?.name ?? user?.firstName ?? 'Водитель'}! 👋</Text>
           <Text style={styles.subGreeting}>АНГРЕН ТАКСИ</Text>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('Settings')}>

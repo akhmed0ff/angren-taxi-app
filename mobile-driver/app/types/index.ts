@@ -2,12 +2,15 @@
 
 export interface User {
   id: string;
-  email: string;
   phone: string;
-  firstName: string;
-  lastName: string;
+  name: string;
+  firstName?: string;
+  lastName?: string;
+  type: 'passenger' | 'driver' | 'admin';
+  language?: string;
+  created_at?: number;
+  email?: string;
   avatarUrl?: string;
-  createdAt: string;
 }
 
 export interface AuthTokens {
@@ -84,7 +87,6 @@ export type DocumentsStatus = 'pending' | 'verified' | 'rejected' | 'missing';
 export type OrderStatus =
   | 'pending'
   | 'accepted'
-  | 'driver_en_route'
   | 'arrived'
   | 'in_progress'
   | 'completed'
@@ -257,12 +259,12 @@ export interface ApiError {
 // ─── WebSocket ───────────────────────────────────────────────────────────────
 
 export type SocketEvent =
-  | 'new_order'
+  | 'ride:created'
+  | 'ride:accepted'
+  | 'ride:started'
+  | 'ride:completed'
+  | 'driver:location'
   | 'order_cancelled'
-  | 'order_updated'
-  | 'location_updated'
-  | 'driver_online'
-  | 'driver_offline'
   | 'ping'
   | 'pong';
 

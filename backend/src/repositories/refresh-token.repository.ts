@@ -1,7 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { BaseRepository } from '../db/base.repository';
+import { DbRow } from '../db/db.interface';
 
-interface RefreshTokenRow {
+interface RefreshTokenRow extends DbRow {
   id: string;
   user_id: string;
   token: string;
@@ -30,6 +31,10 @@ export class RefreshTokenRepository extends BaseRepository {
 
   deleteByUserId(userId: string): void {
     this.db.execute('DELETE FROM refresh_tokens WHERE user_id = ?', [userId]);
+  }
+
+  deleteByToken(token: string): void {
+    this.db.execute('DELETE FROM refresh_tokens WHERE token = ?', [token]);
   }
 }
 

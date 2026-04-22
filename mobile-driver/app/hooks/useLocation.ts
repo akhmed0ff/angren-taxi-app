@@ -3,6 +3,8 @@ import { PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import BackgroundFetch from 'react-native-background-fetch';
 import { useDriverStore } from '../store/useDriverStore';
+import { useAuthStore } from '../store/useAuthStore';
+import { useOrdersStore } from '../store/useOrdersStore';
 import { driverService } from '../services/driver.service';
 import { socketService } from '../services/socket.service';
 import { LOCATION_UPDATE_INTERVAL } from '../utils/constants';
@@ -37,6 +39,8 @@ function getCurrentPosition(): Promise<any> {
 export const useLocation = () => {
   const isOnline = useDriverStore((state) => state.isOnline);
   const setCurrentLocation = useDriverStore((state) => state.setCurrentLocation);
+  const driverId = useAuthStore((state) => state.user?.id);
+  const activeOrder = useOrdersStore((state) => state.activeOrder);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const requestPermissions = useCallback(async (): Promise<boolean> => {
@@ -54,9 +58,16 @@ export const useLocation = () => {
     };
 
     setCurrentLocation(loc);
-    socketService.send('location_updated', loc);
+    if (driverId) {
+      socketService.send('driver:location', {
+        driverId,
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+        rideId: activeOrder?.id ?? undefined,
+      });
+    }
     await driverService.updateLocation(loc);
-  }, [setCurrentLocation]);
+  }, [activeOrder?.id, driverId, setCurrentLocation]);
 
   const startTracking = useCallback(async () => {
     const granted = await requestPermissions();

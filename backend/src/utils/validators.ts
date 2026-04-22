@@ -2,8 +2,8 @@ export function isValidPhone(phone: string): boolean {
   return /^\+?[0-9]{9,15}$/.test(phone.replace(/\s/g, ''));
 }
 
-export function isValidUserType(type: string): type is 'passenger' | 'driver' {
-  return type === 'passenger' || type === 'driver';
+export function isValidUserType(type: string): type is 'passenger' | 'driver' | 'admin' {
+  return type === 'passenger' || type === 'driver' || type === 'admin';
 }
 
 /**

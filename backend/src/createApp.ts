@@ -14,6 +14,8 @@ import orderRoutes from './routes/order.routes';
 import driverRoutes from './routes/driver.routes';
 import paymentRoutes from './routes/payment.routes';
 import bonusRoutes from './routes/bonus.routes';
+import earningsRoutes from './routes/earnings.routes';
+import ratingsRoutes from './routes/ratings.routes';
 import adminRoutes from '@/routes/admin.routes';
 
 /**
@@ -54,6 +56,8 @@ export function createApp(): Express {
   app.use('/api/drivers', driverRoutes);
   app.use('/api/payments', paymentRoutes);
   app.use('/api/bonuses', bonusRoutes);
+  app.use('/api/earnings', earningsRoutes);
+  app.use('/api/ratings', ratingsRoutes);
   app.use('/api/admin', adminRoutes);
 
   app.use(notFoundMiddleware);

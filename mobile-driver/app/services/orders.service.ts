@@ -15,8 +15,9 @@ export const ordersService = {
     return data.data;
   },
 
-  async acceptOrder(orderId: string): Promise<Order> {
-    const { data } = await api.post<ApiResponse<Order>>(`/orders/${orderId}/accept`);
+  async acceptOrder(orderId: string, vehicleId?: string): Promise<Order> {
+    // Backend expects { orderId, vehicleId } in body at POST /orders/accept
+    const { data } = await api.post<ApiResponse<Order>>('/orders/accept', { orderId, vehicleId });
     return data.data;
   },
 

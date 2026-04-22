@@ -9,7 +9,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 
-import { useTaxiStore } from '../../store/taxiStore';
+import { usePaymentsStore } from '../../store/usePaymentsStore';
 
 type MenuNavProp = DrawerNavigationProp<any>;
 
@@ -41,7 +41,7 @@ const MENU_ITEMS_3: MenuItem[] = [
 
 export const UserMenuScreen: React.FC = () => {
   const navigation = useNavigation<MenuNavProp>();
-  const { setPayment } = useTaxiStore();
+  const { setPaymentMethod } = usePaymentsStore();
 
   const handleMenuPress = (itemId: string) => {
     console.log('Menu item pressed:', itemId);
@@ -51,7 +51,7 @@ export const UserMenuScreen: React.FC = () => {
         navigation.navigate('Settings');
         break;
       case 'payment':
-        setPayment('cash');
+        setPaymentMethod('cash');
         break;
       case 'places':
         navigation.navigate('MyPlaces');

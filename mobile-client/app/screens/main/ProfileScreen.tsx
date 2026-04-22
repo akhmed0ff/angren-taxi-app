@@ -66,7 +66,7 @@ export const ProfileScreen: React.FC = () => {
           </View>
           <View>
             <Text style={styles.userName}>{user?.name}</Text>
-            <Text style={styles.userRating}>⭐ {user?.rating.toFixed(1)}</Text>
+            <Text style={styles.userRating}>⭐ {user?.rating?.toFixed(1)}</Text>
           </View>
         </View>
 

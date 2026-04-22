@@ -13,13 +13,22 @@ interface OrderHistoryResponse {
 }
 
 export async function createOrder(data: CreateOrderData): Promise<Order> {
-  const { data: order } = await apiClient.post<Order>('/orders', data);
-  return order;
+  const { data: resp } = await apiClient.post<{ success: boolean; data: Order }>('/orders/create', {
+    category: data.carClass,
+    from_address: data.from.address ?? `${data.from.latitude},${data.from.longitude}`,
+    from_latitude: data.from.latitude,
+    from_longitude: data.from.longitude,
+    to_address: data.to.address ?? `${data.to.latitude},${data.to.longitude}`,
+    to_latitude: data.to.latitude,
+    to_longitude: data.to.longitude,
+    payment_method: data.paymentMethod,
+  });
+  return resp.data;
 }
 
 export async function getOrder(id: string): Promise<Order> {
-  const { data } = await apiClient.get<Order>(`/orders/${id}`);
-  return data;
+  const { data: resp } = await apiClient.get<{ success: boolean; data: Order }>(`/orders/${id}`);
+  return resp.data;
 }
 
 export async function cancelOrder(id: string): Promise<void> {
@@ -27,8 +36,8 @@ export async function cancelOrder(id: string): Promise<void> {
 }
 
 export async function getOrderHistory(params?: OrderHistoryParams): Promise<OrderHistoryResponse> {
-  const { data } = await apiClient.get<OrderHistoryResponse>('/orders', { params });
-  return data;
+  const { data: resp } = await apiClient.get<{ success: boolean; data: Order[]; pagination: { total: number } }>('/orders/history', { params });
+  return { orders: resp.data, total: resp.pagination?.total ?? 0 };
 }
 
 export async function rateDriver(

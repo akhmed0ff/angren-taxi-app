@@ -8,10 +8,10 @@ export const driverService = {
   },
 
   async toggleOnline(isOnline: boolean): Promise<{ isOnline: boolean }> {
-    const { data } = await api.put<ApiResponse<{ isOnline: boolean }>>('/drivers/status', {
+    const { data } = await api.put<ApiResponse<{ status: string }>>('/drivers/status', {
       isOnline,
     });
-    return data.data;
+    return { isOnline: (data.data as any).status === 'online' };
   },
 
   async updateLocation(location: DriverLocation): Promise<void> {
@@ -24,8 +24,18 @@ export const driverService = {
   },
 
   async getStats(): Promise<DriverStats> {
-    const { data } = await api.get<ApiResponse<DriverStats>>('/drivers/stats');
-    return data.data;
+    const { data } = await api.get<ApiResponse<{ totalRides: number; rating: number; balance: number }>>('/drivers/stats');
+    // TODO: backend to return full stats breakdown (completedOrders, cancelledOrders, todayOrders, etc.)
+    return {
+      totalOrders: data.data.totalRides,
+      completedOrders: data.data.totalRides,
+      cancelledOrders: 0,
+      rating: data.data.rating,
+      totalEarnings: data.data.balance,
+      todayEarnings: 0,
+      todayOrders: 0,
+      acceptanceRate: 100,
+    };
   },
 
   async updateProfile(updates: {

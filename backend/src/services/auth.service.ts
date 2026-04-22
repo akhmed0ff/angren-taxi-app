@@ -2,14 +2,17 @@ import { hashPassword, comparePassword } from '../utils/hash';
 import { signToken, generateRefreshToken, getRefreshTokenExpiry } from '../utils/jwt';
 import { isValidPhone, sanitizePhone } from '../utils/validators';
 import { User, UserPublic } from '../models/user.model';
+import { getDb } from '../db/db.provider';
 import { userRepository } from '../repositories/user.repository';
+import { driverRepository } from '../repositories/driver.repository';
+import { orderRepository } from '../repositories/order.repository';
 import { refreshTokenRepository } from '../repositories/refresh-token.repository';
 
 export interface RegisterInput {
   phone: string;
   name: string;
   password: string;
-  type: 'passenger' | 'driver';
+  type: 'passenger' | 'driver' | 'admin';
   language?: string;
 }
 
@@ -44,7 +47,7 @@ export class AuthService {
     // если любой из них упадёт — транзакция откатится целиком.
     // createRefreshToken использует тот же db-провайдер, поэтому операция
     // корректно выполняется в рамках внешней транзакции.
-    const { user, refreshToken } = userRepository.transaction(() => {
+    const { user, refreshToken } = getDb().transaction(() => {
       const user = userRepository.create({
         phone,
         name: input.name,
@@ -54,7 +57,7 @@ export class AuthService {
       });
 
       if (input.type === 'driver') {
-        userRepository.createDriverProfile(user.id);
+        driverRepository.create(user.id);
       }
 
       const rt = this.createRefreshToken(user.id);
@@ -62,8 +65,11 @@ export class AuthService {
     });
 
     const token = signToken({ userId: user.id, type: user.type });
+    const driverRating = user.type === 'driver'
+      ? driverRepository.findByUserId(user.id)?.rating
+      : undefined;
 
-    return { user: toPublic(user), token, refreshToken };
+    return { user: toPublic(user, driverRating), token, refreshToken };
   }
 
   async login(input: LoginInput): Promise<AuthResult> {
@@ -81,7 +87,10 @@ export class AuthService {
 
     const token = signToken({ userId: user.id, type: user.type });
     const refreshToken = this.createRefreshToken(user.id);
-    return { user: toPublic(user), token, refreshToken };
+    const driverRating = user.type === 'driver'
+      ? driverRepository.findByUserId(user.id)?.rating
+      : undefined;
+    return { user: toPublic(user, driverRating), token, refreshToken };
   }
 
   async refreshSession(refreshToken: string): Promise<AuthResult> {
@@ -124,7 +133,7 @@ export class AuthService {
   }
 }
 
-function toPublic(user: User): UserPublic {
+function toPublic(user: User, driverRating?: number): UserPublic {
   return {
     id: user.id,
     phone: user.phone,
@@ -132,6 +141,7 @@ function toPublic(user: User): UserPublic {
     type: user.type,
     language: user.language,
     created_at: user.created_at,
+    rating: driverRating,
   };
 }
 

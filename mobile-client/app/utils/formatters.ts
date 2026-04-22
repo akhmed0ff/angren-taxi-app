@@ -53,7 +53,7 @@ export function formatOrderStatus(status: OrderStatus, t: (key: string) => strin
     pending: t('order.status.pending'),
     accepted: t('order.status.accepted'),
     arrived: t('order.status.arrived'),
-    inProgress: t('order.status.inProgress'),
+    in_progress: t('order.status.inProgress'),
     completed: t('order.status.completed'),
     cancelled: t('order.status.cancelled'),
   };
