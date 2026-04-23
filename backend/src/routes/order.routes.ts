@@ -16,7 +16,7 @@ router.get('/active', authMiddleware, driverOnly, (req, res, next) =>
   orderController.getActiveOrder(req, res, next)
 );
 
-router.get('/history', authMiddleware, driverOnly, (req, res, next) =>
+router.get('/history', authMiddleware, (req, res, next) =>
   orderController.getOrderHistory(req, res, next)
 );
 

@@ -85,3 +85,73 @@ describe('GET /api/orders/:id — ownership / access control', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('GET /api/orders/history — passenger and driver order history', () => {
+  it('пассажир может получить свою историю заказов — 200', async () => {
+    const passenger = await registerUser(app);
+    const driver = await registerOnlineDriver(app);
+    
+    // Создаем несколько заказов
+    const orderId1 = await createOrder(app, passenger.token);
+    const orderId2 = await createOrder(app, passenger.token);
+    
+    // Принимаем и завершаем первый заказ
+    await acceptOrder(app, driver.token, orderId1);
+    await request(app)
+      .post(`/api/orders/${orderId1}/start`)
+      .set('Authorization', `Bearer ${driver.token}`);
+    await request(app)
+      .post(`/api/orders/${orderId1}/complete`)
+      .set('Authorization', `Bearer ${driver.token}`);
+
+    const res = await request(app)
+      .get('/api/orders/history')
+      .set('Authorization', `Bearer ${passenger.token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('водитель может получить свою историю заказов — 200', async () => {
+    const passenger = await registerUser(app);
+    const driver = await registerOnlineDriver(app);
+    
+    const orderId = await createOrder(app, passenger.token);
+    await acceptOrder(app, driver.token, orderId);
+    await request(app)
+      .post(`/api/orders/${orderId}/start`)
+      .set('Authorization', `Bearer ${driver.token}`);
+    await request(app)
+      .post(`/api/orders/${orderId}/complete`)
+      .set('Authorization', `Bearer ${driver.token}`);
+
+    const res = await request(app)
+      .get('/api/orders/history')
+      .set('Authorization', `Bearer ${driver.token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('пассажир без заказов получает пустую историю — 200', async () => {
+    const passenger = await registerUser(app);
+
+    const res = await request(app)
+      .get('/api/orders/history')
+      .set('Authorization', `Bearer ${passenger.token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('неавторизованный запрос к /history возвращает 401', async () => {
+    const res = await request(app).get('/api/orders/history');
+
+    expect(res.status).toBe(401);
+  });
+});

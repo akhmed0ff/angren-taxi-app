@@ -308,11 +308,25 @@ export class OrderController {
 
   getOrderHistory(req: AuthRequest, res: Response, next: NextFunction): void {
     try {
+      const { userId, type } = req.user!;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
       const status = req.query.status as string | undefined;
 
-      const result = orderService.getOrderHistory(req.user!.userId, { page, limit, status });
+      let result: { orders: Order[]; total: number };
+
+      if (type === 'driver') {
+        const driver = driverService.getDriver(userId);
+        if (!driver) {
+          res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
+          return;
+        }
+        result = orderService.getOrderHistory(userId, { page, limit, status });
+      } else {
+        // passenger (and admin can also see passenger orders)
+        result = orderService.getPassengerOrderHistory(userId, { page, limit });
+      }
+
       res.json({
         success: true,
         data: result.orders,
