@@ -7,7 +7,6 @@ import { i18nMiddleware } from './middleware/i18n.middleware';
 import { errorMiddleware, notFoundMiddleware } from './middleware/error.middleware';
 import { apiRateLimiter } from './middleware/rate-limit.middleware';
 import { env } from './config/env';
-import { logger } from './utils/logger';
 
 import authRoutes from './routes/auth.routes';
 import orderRoutes from './routes/order.routes';
@@ -28,7 +27,6 @@ export function createApp(): Express {
   app.use(helmet());
   if (env.nodeEnv !== 'test') {
     app.use(pinoHttp({
-      logger: logger as any,
       autoLogging: {
         ignore: (req) => req.url === '/health',
       },
