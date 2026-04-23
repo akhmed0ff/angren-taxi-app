@@ -179,6 +179,16 @@ function initializeSchema(db: Database.Database): void {
       FOREIGN KEY (driver_id) REFERENCES drivers(id)
     );
 
+    CREATE TABLE IF NOT EXISTS bank_details (
+      id TEXT PRIMARY KEY,
+      driver_id TEXT NOT NULL UNIQUE,
+      bank_name TEXT NOT NULL,
+      account_number TEXT NOT NULL,
+      created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+      updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+      FOREIGN KEY (driver_id) REFERENCES drivers(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
     CREATE INDEX IF NOT EXISTS idx_drivers_user_id ON drivers(user_id);
     CREATE INDEX IF NOT EXISTS idx_drivers_status ON drivers(status);
@@ -191,5 +201,6 @@ function initializeSchema(db: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_ratings_to_user ON ratings(to_user_id);
     CREATE INDEX IF NOT EXISTS idx_ratings_order ON ratings(order_id);
     CREATE INDEX IF NOT EXISTS idx_payouts_driver ON payouts(driver_id);
+    CREATE INDEX IF NOT EXISTS idx_bank_details_driver ON bank_details(driver_id);
   `);
 }

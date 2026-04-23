@@ -4,6 +4,7 @@ import { emitDriverLocationUpdated } from '../realtime/socket';
 import { driverService } from '../services/driver.service';
 import { userRepository } from '../repositories/user.repository';
 import { vehicleRepository, VehicleData } from '../repositories/vehicle.repository';
+import { bankDetailsRepository } from '../repositories/bank-details.repository';
 import { isValidCategory } from '../utils/validators';
 
 export class DriverController {
@@ -278,15 +279,68 @@ export class DriverController {
     try {
       const { bankName, accountNumber } = req.body as { bankName?: string; accountNumber?: string };
 
-      if (!bankName || !accountNumber) {
-        res.status(400).json({ success: false, message: req.t?.('validation.required') });
+      // Validate bankName (2-100 chars)
+      if (!bankName || typeof bankName !== 'string' || bankName.length < 2 || bankName.length > 100) {
+        res.status(400).json({ success: false, message: req.t?.('validation.invalid_bank_name') });
         return;
       }
 
-      res.json({ success: true, message: 'Bank details saved' });
+      // Validate accountNumber (5-30 chars)
+      if (!accountNumber || typeof accountNumber !== 'string' || accountNumber.length < 5 || accountNumber.length > 30) {
+        res.status(400).json({ success: false, message: req.t?.('validation.invalid_account_number') });
+        return;
+      }
+
+      const driver = driverService.getDriver(req.user!.userId);
+      if (!driver) {
+        res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
+        return;
+      }
+
+      // Upsert bank details
+      bankDetailsRepository.upsert(driver.id, bankName, accountNumber);
+
+      res.json({
+        success: true,
+        message: req.t?.('bankDetails.saved'),
+        data: { bankName, accountNumber: this.maskAccountNumber(accountNumber) },
+      });
     } catch (err) {
       next(err);
     }
+  }
+
+  getBankDetails(req: AuthRequest, res: Response, next: NextFunction): void {
+    try {
+      const driver = driverService.getDriver(req.user!.userId);
+      if (!driver) {
+        res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
+        return;
+      }
+
+      const bankDetails = bankDetailsRepository.findByDriverId(driver.id);
+      if (!bankDetails) {
+        res.status(404).json({ success: false, message: req.t?.('bankDetails.not_found') });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: {
+          bankName: bankDetails.bank_name,
+          accountNumber: this.maskAccountNumber(bankDetails.account_number),
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  private maskAccountNumber(accountNumber: string): string {
+    if (accountNumber.length <= 4) {
+      return '*'.repeat(accountNumber.length);
+    }
+    return '*'.repeat(accountNumber.length - 4) + accountNumber.slice(-4);
   }
 }
 

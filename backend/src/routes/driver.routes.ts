@@ -57,4 +57,8 @@ router.put('/bank-details', authMiddleware, driverOnly, (req, res, next) =>
   driverController.updateBankDetails(req, res, next)
 );
 
+router.get('/bank-details', authMiddleware, driverOnly, (req, res, next) =>
+  driverController.getBankDetails(req, res, next)
+);
+
 export default router;
