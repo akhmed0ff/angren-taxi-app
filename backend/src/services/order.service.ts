@@ -4,6 +4,7 @@ import { getDb } from '../db/db.provider';
 import { userRepository } from '../repositories/user.repository';
 import { driverRepository } from '../repositories/driver.repository';
 import { orderRepository } from '../repositories/order.repository';
+import { ratingRepository } from '../repositories/rating.repository';
 import { refreshTokenRepository } from '../repositories/refresh-token.repository';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -256,6 +257,15 @@ export class OrderService {
         'completed',
       ]
     );
+
+    // Rассчитываем и обновляем рейтинг водителя из таблицы ratings
+    const driverId = completedOrder.driver_id;
+    if (driverId) {
+      const averageScore = ratingRepository.getAverageScore(driverId);
+      if (averageScore > 0) {
+        driverRepository.updateRating(driverId, averageScore);
+      }
+    }
 
     return completedOrder;
   }

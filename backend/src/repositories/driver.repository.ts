@@ -113,6 +113,13 @@ export class DriverRepository extends BaseRepository {
       [amount, userId]
     );
   }
+
+  updateRating(driverId: string, newRating: number): void {
+    this.db.execute(
+      `UPDATE drivers SET rating = ?, updated_at = strftime('%s', 'now') WHERE id = ?`,
+      [newRating, driverId]
+    );
+  }
 }
 
 export const driverRepository = new DriverRepository();

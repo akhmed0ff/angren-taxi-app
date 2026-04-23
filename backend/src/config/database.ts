@@ -154,6 +154,20 @@ function initializeSchema(db: Database.Database): void {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS ratings (
+      id TEXT PRIMARY KEY,
+      order_id TEXT NOT NULL UNIQUE,
+      from_user_id TEXT NOT NULL,
+      to_user_id TEXT NOT NULL,
+      to_type TEXT NOT NULL CHECK(to_type IN ('driver', 'passenger')),
+      score INTEGER NOT NULL CHECK(score >= 1 AND score <= 5),
+      comment TEXT,
+      created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+      FOREIGN KEY (order_id) REFERENCES orders(id),
+      FOREIGN KEY (from_user_id) REFERENCES users(id),
+      FOREIGN KEY (to_user_id) REFERENCES users(id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
     CREATE INDEX IF NOT EXISTS idx_drivers_user_id ON drivers(user_id);
     CREATE INDEX IF NOT EXISTS idx_drivers_status ON drivers(status);
@@ -163,5 +177,7 @@ function initializeSchema(db: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_bonuses_user_id ON bonuses(user_id);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_bonuses_order_type ON bonuses(order_id, type);
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
+    CREATE INDEX IF NOT EXISTS idx_ratings_to_user ON ratings(to_user_id);
+    CREATE INDEX IF NOT EXISTS idx_ratings_order ON ratings(order_id);
   `);
 }

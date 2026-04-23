@@ -1,6 +1,9 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { driverService } from '../services/driver.service';
+import { ratingRepository } from '../repositories/rating.repository';
+import { orderRepository } from '../repositories/order.repository';
+import { v4 as uuidv4 } from 'uuid';
 
 export class RatingsController {
   getDriverRatings(req: AuthRequest, res: Response, next: NextFunction): void {
@@ -11,12 +14,14 @@ export class RatingsController {
         return;
       }
 
-      // TODO: load ratingDistribution and reviews from ratings table when available
+      const averageScore = ratingRepository.getAverageScore(driver.id);
+      const totalReviews = ratingRepository.countByToUser(driver.id);
+      const ratingDistribution = ratingRepository.getDistribution(driver.id);
+
       const summary = {
-        overallRating: driver.rating,
-        totalReviews: 0,
-        ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-        reviews: [],
+        overallRating: averageScore,
+        totalReviews,
+        ratingDistribution,
         tagCounts: {},
       };
 
@@ -26,30 +31,86 @@ export class RatingsController {
     }
   }
 
-  // TODO: return real reviews from ratings table when available
   getDriverReviews(req: AuthRequest, res: Response, next: NextFunction): void {
     try {
-      res.json({ success: true, data: [] });
+      const driver = driverService.getDriver(req.user!.userId);
+      if (!driver) {
+        res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
+        return;
+      }
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = (page - 1) * limit;
+
+      const reviews = ratingRepository.findByToUser(driver.id, limit, offset);
+      const total = ratingRepository.countByToUser(driver.id);
+
+      res.json({
+        success: true,
+        data: reviews,
+        pagination: { page, limit, total },
+      });
     } catch (err) {
       next(err);
     }
   }
 
-  // TODO: persist passenger rating to ratings table when available
-  ratePassenger(req: AuthRequest, res: Response, next: NextFunction): void {
+  rateDriver(req: AuthRequest, res: Response, next: NextFunction): void {
     try {
-      const { orderId, rating, comment } = req.body as {
+      const { orderId, score, comment } = req.body as {
         orderId?: string;
-        rating?: number;
+        score?: number;
         comment?: string;
       };
 
-      if (!orderId || typeof rating !== 'number' || rating < 1 || rating > 5) {
-        res.status(400).json({ success: false, message: req.t?.('validation.required') });
+      if (!orderId || typeof score !== 'number' || score < 1 || score > 5) {
+        res.status(400).json({ success: false, message: req.t?.('validation.invalid_rating') });
         return;
       }
 
-      res.json({ success: true });
+      const order = orderRepository.findById(orderId);
+      if (!order) {
+        res.status(404).json({ success: false, message: req.t?.('order.not_found') });
+        return;
+      }
+
+      // Only passenger can rate a driver after completed order
+      if (order.passenger_id !== req.user!.userId) {
+        res.status(403).json({ success: false, message: req.t?.('common.forbidden') });
+        return;
+      }
+
+      if (order.status !== 'completed') {
+        res.status(400).json({
+          success: false,
+          message: req.t?.('rating.order_not_completed'),
+        });
+        return;
+      }
+
+      if (!order.driver_id) {
+        res.status(400).json({
+          success: false,
+          message: req.t?.('rating.no_driver_assigned'),
+        });
+        return;
+      }
+
+      // Check if already rated this order
+      const existingRating = ratingRepository.findByOrder(orderId);
+      if (existingRating) {
+        res.status(400).json({
+          success: false,
+          message: req.t?.('rating.already_rated'),
+        });
+        return;
+      }
+
+      // Create rating
+      ratingRepository.create(orderId, req.user!.userId, order.driver_id, 'driver', score, comment);
+
+      res.json({ success: true, message: req.t?.('rating.created_successfully') });
     } catch (err) {
       next(err);
     }
