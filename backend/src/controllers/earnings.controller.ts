@@ -1,7 +1,8 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { driverService } from '../services/driver.service';
-import { v4 as uuidv4 } from 'uuid';
+import { earningsService } from '../services/earnings.service';
+import { payoutRepository } from '../repositories/payout.repository';
 
 export class EarningsController {
   getEarnings(req: AuthRequest, res: Response, next: NextFunction): void {
@@ -12,14 +13,17 @@ export class EarningsController {
         return;
       }
 
-      // TODO: calculate real week/month earnings from order_history table
+      const weekEarnings = earningsService.getWeekEarnings(driver.id);
+      const monthEarnings = earningsService.getMonthEarnings(driver.id);
+      const dailyBreakdown = earningsService.getDailyBreakdown(driver.id);
+      const pendingPayout = payoutRepository.totalPendingAmountByDriver(driver.id);
+
       const summary = {
         totalEarnings: driver.balance,
-        weekEarnings: 0,
-        monthEarnings: 0,
-        pendingPayout: 0,
-        dailyBreakdown: [],
-        payouts: [],
+        weekEarnings,
+        monthEarnings,
+        pendingPayout,
+        dailyBreakdown,
       };
 
       res.json({ success: true, data: summary });
@@ -28,7 +32,6 @@ export class EarningsController {
     }
   }
 
-  // TODO: implement real payout request when payouts table is available
   requestPayout(req: AuthRequest, res: Response, next: NextFunction): void {
     try {
       const { amount } = req.body as { amount?: number };
@@ -38,23 +41,46 @@ export class EarningsController {
         return;
       }
 
-      const payout = {
-        id: uuidv4(),
-        amount,
-        status: 'pending' as const,
-        requestedAt: new Date().toISOString(),
-      };
+      const driver = driverService.getDriver(req.user!.userId);
+      if (!driver) {
+        res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
+        return;
+      }
 
-      res.json({ success: true, data: payout });
+      // Check if balance is sufficient
+      if (driver.balance < amount) {
+        res.status(400).json({ success: false, message: req.t?.('earnings.insufficient_balance') });
+        return;
+      }
+
+      // Create payout request
+      payoutRepository.create(driver.id, amount);
+
+      res.json({ success: true, message: req.t?.('earnings.payout_requested') });
     } catch (err) {
       next(err);
     }
   }
 
-  // TODO: implement real payout history when payouts table is available
   getPayouts(req: AuthRequest, res: Response, next: NextFunction): void {
     try {
-      res.json({ success: true, data: [] });
+      const driver = driverService.getDriver(req.user!.userId);
+      if (!driver) {
+        res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
+        return;
+      }
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const offset = (page - 1) * limit;
+
+      const payouts = payoutRepository.findByDriver(driver.id, limit, offset);
+
+      res.json({
+        success: true,
+        data: payouts,
+        pagination: { page, limit },
+      });
     } catch (err) {
       next(err);
     }

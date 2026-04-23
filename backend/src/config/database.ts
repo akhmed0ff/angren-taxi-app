@@ -168,6 +168,17 @@ function initializeSchema(db: Database.Database): void {
       FOREIGN KEY (to_user_id) REFERENCES users(id)
     );
 
+    CREATE TABLE IF NOT EXISTS payouts (
+      id TEXT PRIMARY KEY,
+      driver_id TEXT NOT NULL,
+      amount REAL NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending'
+        CHECK(status IN ('pending', 'approved', 'rejected', 'paid')),
+      requested_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+      processed_at INTEGER,
+      FOREIGN KEY (driver_id) REFERENCES drivers(id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
     CREATE INDEX IF NOT EXISTS idx_drivers_user_id ON drivers(user_id);
     CREATE INDEX IF NOT EXISTS idx_drivers_status ON drivers(status);
@@ -179,5 +190,6 @@ function initializeSchema(db: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
     CREATE INDEX IF NOT EXISTS idx_ratings_to_user ON ratings(to_user_id);
     CREATE INDEX IF NOT EXISTS idx_ratings_order ON ratings(order_id);
+    CREATE INDEX IF NOT EXISTS idx_payouts_driver ON payouts(driver_id);
   `);
 }

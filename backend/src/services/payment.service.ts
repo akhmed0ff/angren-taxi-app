@@ -81,12 +81,13 @@ export class PaymentService {
          VALUES (?, ?, ?, ?, 'cashback')`
       ).run(uuidv4(), passengerId, orderId, bonusAmount);
 
-      // 5. Освобождаем водителя (если назначен)
+      // 5. Освобождаем водителя и добавляем заработок (если назначен)
       if (driverId) {
+        const driverEarnings = Math.round(amount * 0.85); // 85% after 15% platform fee
         db.prepare(
-          `UPDATE drivers SET status = 'online', updated_at = strftime('%s', 'now')
-           WHERE id = ?`
-        ).run(driverId);
+          `UPDATE drivers SET balance = balance + ?, total_rides = total_rides + 1,
+           status = 'online', updated_at = strftime('%s', 'now') WHERE id = ?`
+        ).run(driverEarnings, driverId);
       }
 
       return this.getPaymentByOrderId(orderId) as Payment;
