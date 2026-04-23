@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { orderService } from '../services/order.service';
 import { driverService } from '../services/driver.service';
+import { vehicleRepository } from '../repositories/vehicle.repository';
 import { isValidCategory, isValidPaymentMethod, isValidLatitude, isValidLongitude } from '../utils/validators';
 import { CreateOrderInput } from '../models/order.model';
 
@@ -132,6 +133,16 @@ export class OrderController {
       const driver = driverService.getDriver(req.user!.userId);
       if (!driver) {
         res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
+        return;
+      }
+
+      // Validate that driver has an active vehicle
+      const vehicle = vehicleRepository.findActiveByDriverId(driver.id);
+      if (!vehicle) {
+        res.status(400).json({
+          success: false,
+          message: req.t?.('vehicle.required_for_orders') || 'Добавьте данные автомобиля перед принятием заказов',
+        });
         return;
       }
 

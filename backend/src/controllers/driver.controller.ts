@@ -3,6 +3,8 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import { emitDriverLocationUpdated } from '../realtime/socket';
 import { driverService } from '../services/driver.service';
 import { userRepository } from '../repositories/user.repository';
+import { vehicleRepository, VehicleData } from '../repositories/vehicle.repository';
+import { isValidCategory } from '../utils/validators';
 
 export class DriverController {
   setOnline(req: AuthRequest, res: Response, next: NextFunction): void {
@@ -190,16 +192,82 @@ export class DriverController {
   // TODO: implement real vehicle update when vehicles table is linked to driver profile
   updateVehicle(req: AuthRequest, res: Response, next: NextFunction): void {
     try {
-      res.json({ success: true, message: 'Vehicle updated' });
+      const { make, model, color, plate, year, category } = req.body as Partial<VehicleData>;
+
+      // Validate required fields
+      if (!make || !model || !color || !plate || !year || !category) {
+        res.status(400).json({ success: false, message: req.t?.('validation.required') });
+        return;
+      }
+
+      // Validate year is a reasonable number
+      if (typeof year !== 'number' || year < 1900 || year > new Date().getFullYear() + 1) {
+        res.status(400).json({ success: false, message: req.t?.('validation.invalid_year') });
+        return;
+      }
+
+      // Validate category
+      if (!isValidCategory(category)) {
+        res.status(400).json({ success: false, message: req.t?.('validation.invalid_category') });
+        return;
+      }
+
+      const driver = driverService.getDriver(req.user!.userId);
+      if (!driver) {
+        res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
+        return;
+      }
+
+      const vehicleData: VehicleData = { make, model, color, plate, year, category };
+      const vehicle = vehicleRepository.upsert(driver.id, vehicleData);
+
+      res.json({
+        success: true,
+        message: req.t?.('vehicle.updated'),
+        data: vehicle,
+      });
     } catch (err) {
       next(err);
     }
   }
 
-  // TODO: implement real document upload when storage/document table is available
+  getVehicle(req: AuthRequest, res: Response, next: NextFunction): void {
+    try {
+      const driver = driverService.getDriver(req.user!.userId);
+      if (!driver) {
+        res.status(404).json({ success: false, message: req.t?.('driver.not_found') });
+        return;
+      }
+
+      const vehicle = vehicleRepository.findActiveByDriverId(driver.id);
+      if (!vehicle) {
+        res.status(404).json({ success: false, message: req.t?.('vehicle.not_found') });
+        return;
+      }
+
+      res.json({ success: true, data: vehicle });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   uploadDocuments(req: AuthRequest, res: Response, next: NextFunction): void {
     try {
-      res.json({ success: true, message: 'Documents received' });
+      const { documentType, documentNumber } = req.body as {
+        documentType?: string;
+        documentNumber?: string;
+      };
+
+      if (!documentType || !documentNumber) {
+        res.status(400).json({ success: false, message: req.t?.('validation.required') });
+        return;
+      }
+
+      // Document upload not yet implemented
+      res.status(501).json({
+        success: false,
+        message: req.t?.('document.not_implemented') || 'Загрузка документов будет доступна в следующей версии',
+      });
     } catch (err) {
       next(err);
     }

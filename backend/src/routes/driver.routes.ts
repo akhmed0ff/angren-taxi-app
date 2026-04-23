@@ -45,6 +45,10 @@ router.put('/vehicle', authMiddleware, driverOnly, (req, res, next) =>
   driverController.updateVehicle(req, res, next)
 );
 
+router.get('/vehicle', authMiddleware, driverOnly, (req, res, next) =>
+  driverController.getVehicle(req, res, next)
+);
+
 router.post('/documents', authMiddleware, driverOnly, (req, res, next) =>
   driverController.uploadDocuments(req, res, next)
 );
