@@ -36,8 +36,19 @@ export class DriverService {
     locationCache.update(userId, latitude, longitude);
   }
 
+  /**
+   * Get online drivers, optionally filtered by vehicle category.
+   * - Without category: returns all online drivers (lenient)
+   * - With category: uses strict matching (INNER JOIN) to exclude drivers without vehicles
+   *   This ensures when accepting an order we only get drivers with required vehicle type
+   */
   getOnlineDrivers(category?: string): DriverWithUser[] {
-    return driverRepository.findOnline(category);
+    if (category) {
+      // Strict version for order acceptance — requires vehicle of specified category
+      return driverRepository.findOnlineWithVehicle(category);
+    }
+    // Lenient version — all online drivers regardless of vehicle status
+    return driverRepository.findOnline();
   }
 
   setBusy(driverId: string): void {

@@ -38,13 +38,20 @@ export class DriverRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Find all online drivers, optionally filtered by vehicle category.
+   * Uses LEFT JOIN to include drivers even if they have no vehicle (or no vehicle of requested category).
+   * This is the lenient version that returns drivers regardless of vehicle availability.
+   */
   findOnline(category?: string): DriverWithUserRow[] {
     if (category) {
+      // LEFT JOIN allows drivers without matching vehicles to appear in results
+      // Filter by category only when vehicle exists
       return this.db.query<DriverWithUserRow>(
         `SELECT d.*, u.phone, u.name FROM drivers d
          JOIN users u ON d.user_id = u.id
-         JOIN vehicles v ON v.driver_id = d.id
-         WHERE d.status = 'online' AND v.category = ? AND v.is_active = 1`,
+         LEFT JOIN vehicles v ON v.driver_id = d.id AND v.category = ? AND v.is_active = 1
+         WHERE d.status = 'online'`,
         [category]
       );
     }
@@ -52,6 +59,21 @@ export class DriverRepository extends BaseRepository {
     return this.db.query<DriverWithUserRow>(
       `SELECT d.*, u.phone, u.name FROM drivers d
        JOIN users u ON d.user_id = u.id WHERE d.status = 'online'`
+    );
+  }
+
+  /**
+   * Find online drivers with strict vehicle requirements.
+   * Uses INNER JOIN to exclude drivers without an active vehicle of the requested category.
+   * Use this when vehicle data is strictly required (e.g., when accepting an order).
+   */
+  findOnlineWithVehicle(category: string): DriverWithUserRow[] {
+    return this.db.query<DriverWithUserRow>(
+      `SELECT d.*, u.phone, u.name FROM drivers d
+       JOIN users u ON d.user_id = u.id
+       JOIN vehicles v ON v.driver_id = d.id
+       WHERE d.status = 'online' AND v.category = ? AND v.is_active = 1`,
+      [category]
     );
   }
 
