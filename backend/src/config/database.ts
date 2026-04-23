@@ -74,13 +74,17 @@ function initializeSchema(db: Database.Database): void {
       FOREIGN KEY (driver_id) REFERENCES drivers(id) ON DELETE CASCADE
     );
 
+    -- MIGRATION NOTE: If database already exists and was created before 'arrived' status support,
+    -- existing databases need manual migration. 'arrived' status is used by arrivedAtPickup method
+    -- in order.repository.ts and order.service.ts. SQLite does not support ALTER CHECK constraints,
+    -- so existing databases must be recreated or migrated with a SQL script that rebuilds the table.
     CREATE TABLE IF NOT EXISTS orders (
       id TEXT PRIMARY KEY,
       passenger_id TEXT NOT NULL,
       driver_id TEXT,
       vehicle_id TEXT,
       status TEXT NOT NULL DEFAULT 'pending'
-        CHECK(status IN ('pending','accepted','in_progress','completed','cancelled')),
+        CHECK(status IN ('pending','accepted','arrived','in_progress','completed','cancelled')),
       category TEXT NOT NULL CHECK(category IN ('economy', 'comfort', 'premium')),
       from_address TEXT NOT NULL,
       from_latitude REAL NOT NULL,
